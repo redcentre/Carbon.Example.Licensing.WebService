@@ -1,0 +1,154 @@
+<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ output extension=".cs" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Xml" #>
+<#@ assembly name="System.Xml.Linq" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Xml.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ include file="..\..\Application.ttinclude" #>
+<#
+	string appxml = Host.ResolvePath(@"..\..\Application.xml");
+	var doc = XDocument.Load(appxml);
+	var app = App.FromDoc(doc);
+	var conquery = app.Methods.Where(m => m.Web != null).GroupBy(m => m.Web.Controller).Select(g => new { ConName = g.Key, Methods = g.ToArray() }).ToArray();
+	EmitHeader();
+#>
+using System.CodeDom.Compiler;
+using System.Net;
+using System.Threading.Tasks;
+using RCS.Licensing.Example.WebService.Shared;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using RCS.Azure.StorageAccount.Shared;
+using RCS.Licensing.Provider.Shared;
+using RCS.Licensing.Provider.Shared.Entities;
+using Swashbuckle.AspNetCore.Annotations;
+
+#nullable enable
+
+namespace RCS.Licensing.Example.WebService.Controllers;
+<#
+	foreach (var con in conquery)
+	{
+#>
+
+partial class <#=con.ConName#>
+{
+<#
+		foreach (AppMethod am in con.Methods)
+		{
+			if (am.Web.Summary != null)
+			{
+#>
+	/// <summary>
+	///   <#=Unesc(am.Web.Summary)#>
+	/// </summary>
+<#
+			}
+			if (am.Web.Remarks != null)
+			{
+#>
+	/// <remarks>
+	///   <#=Unesc(am.Web.Remarks)#>
+	/// </remarks>
+<#
+			}
+			if (am.Web.Params?.Length > 0)
+			{
+				var bodyp = am.Web.Params.FirstOrDefault(p => p.From == "FromBody");
+				var otherp = am.Web.Params.Where(p => p.From != "FromBody");
+				if (bodyp != null)
+				{
+					string showtype1 = bodyp.Type.Replace("<", "&lt;").Replace(">", "&gt;");
+#>
+	/// <param name="<#=bodyp.Name#>">The request body contains a serialized <c><#=showtype1#></c>.</param>
+<#
+				}
+				foreach (var p in otherp.Where(x => x.Description != null))
+				{
+#>
+	/// <param name="<#=p.Name#>"><#=Unesc(p.Description)#></param>
+<#
+				}
+			}
+			string showtype2 = am.ResponseType.Replace("<", "&lt;").Replace(">", "&gt;");
+#>
+	/// <response code="200">
+	///   The web service call succeeded. The response body contains a serialized <c>ResponseWrap</c>.
+	///   If the <c>hasError</c> property is <b>false</b> then the <c>data</c> property contains a serialized <c><#=showtype2#></c>.
+	///   <i>For more information see: <a href="https://github.com/redcentre/Carbon.Examples.Licensing.WebService" target="_blank">Carbon Example Licensing Web Service</a>.</i>
+<#
+			if (am.Codes.Length > 0)
+			{
+#>
+	/// <br/><br/><b>Response Codes</b><br/>
+<#
+				foreach (var code in am.Codes)
+				{
+#>
+	/// <br/>• <#=code.Id#> – <#=code.Summary#>
+<#
+				}
+			}
+#>
+	/// </response>
+	[GeneratedCode("<#=TTName#>", "<#=TTVer#>")]
+	[Http<#=am.Web.Method#>]
+<#
+			if (am.Obsolete != null)
+			{
+#>
+	[Obsolete("<#=am.Obsolete#>")]
+<#
+			}
+			if (am.IgnoreApi)
+			{
+#>
+	[ApiExplorerSettings(IgnoreApi = true)]
+<#
+			}
+			if (am.Web.Anonymous)
+			{
+#>
+	[AllowAnonymous]
+<#
+			}
+			if (am.Web.RequiresSession)
+			{
+#>
+	[TypeFilter(typeof(SessionCheckerAttribute))]
+<#
+			}
+			if (am.Web.RequiresKey)
+			{
+#>
+	[TypeFilter(typeof(AuthCheckerAttribute))]
+<#
+			}
+			string pnamejoin = string.Empty;
+			string ppairjoin = string.Empty;
+			if (am.Web.Params?.Length > 0)
+			{
+				pnamejoin = string.Join(", ", am.Web.Params.Select(p => p.Name));
+				ppairjoin = string.Join(", ", am.Web.Params.Select(p => $"{p.Type} {p.Name}"));
+			}
+#>
+	[Route("<#=am.Web.Route#>")]
+	[ProducesResponseType(typeof(ResponseWrap<<#=am.ResponseType#>>), StatusCodes.Status200OK)]
+	[SwaggerResponse((int)HttpStatusCode.OK, "The request succeeded.", typeof(ResponseWrap<<#=am.ResponseType#>>))]
+	public async Task<ResponseWrap<<#=am.ResponseType#>>> <#=am.Name#>(<#=am.Web.ParamFullJoin#>)
+	{
+		return await Inner<#=am.Name#>(<#=am.Web.ParamNameJoin#>);
+	}
+
+<#
+		}
+#>
+}
+<#
+	}
+#>

@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<doc>
+  <members name="AuthCommon">
+    <param name="password">Account password.</param>
+    <param name="skipCache">Currently not used.</param>
+    <returns>
+      A <c>LicenceFull</c> class instance containing details of the attributes and permissions assigned to the account.
+    </returns>
+    <exception cref="ApplicationException">Thrown if there is a login processing error.</exception>
+    <remarks>
+      A successful authentication causes the web service to register a <i>session</i> with the client.
+      The <c>Id</c> of the session is recorded by the client class instance and is automatically added
+      to subsequent service call request headers. The logout and return calls will end the session
+      and remove the request header.
+    </remarks>
+  </members>
+  <members name="ThrowOnError">
+		<param name="throwOnError">
+      True to throw an <see cref="ApplicationException"/> if the standard response body property
+      <c>hasError</c> value is <c>true</c>. Otherwise the caller must inspect the <c>hasError</c> property
+      and perform their own error handling logic.
+    </param>
+  </members>
+</doc>

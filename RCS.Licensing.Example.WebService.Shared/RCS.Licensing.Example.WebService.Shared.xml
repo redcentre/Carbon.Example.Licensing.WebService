@@ -1,0 +1,725 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RCS.Licensing.Example.WebService.Shared</name>
+    </assembly>
+    <members>
+        <member name="T:RCS.Licensing.Example.WebService.Shared.JobContainerAccessType">
+            <summary>
+            This enum exactly matches the Azure library enum PublicAccessType.
+            0=None 1=BlobContainer 2=Blob
+            </summary>
+        </member>
+        <member name="F:RCS.Licensing.Example.WebService.Shared.JobContainerAccessType.None">
+            <summary>
+            No public access.
+            </summary>
+        </member>
+        <member name="F:RCS.Licensing.Example.WebService.Shared.JobContainerAccessType.BlobContainer">
+            <summary>
+            Access to blobs and the container.
+            </summary>
+        </member>
+        <member name="F:RCS.Licensing.Example.WebService.Shared.JobContainerAccessType.Blob">
+            <summary>
+            Access to blobs only.
+            </summary>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.CreateJobContainerRequest.JobId">
+            <summary>
+            Job Container Name.
+            </summary>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.CreateJobContainerRequest.AccessType">
+            <summary>
+            Resource Group Name that will contain the account.
+            </summary>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.CreateStorageAccountRequest.Name">
+            <summary>
+            Storage Account Name.
+            </summary>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.CreateStorageAccountRequest.ResourceGroupName">
+            <summary>
+            Resource Group Name that will contain the account.
+            </summary>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.CreateStorageAccountRequest.Location">
+            <summary>
+            The location (aka region) can be the short name like "westus" or the full name like "West US".
+            </summary>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.CreateStorageAccountRequest.AllowPublicBlobAccess">
+            <summary>
+            True to allow public access to blobs in containers in the account.
+            </summary>
+        </member>
+        <member name="T:RCS.Licensing.Example.WebService.Shared.ErrorResponse">
+            <summary>
+            A standard error reponse for application errors.
+            </summary>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ErrorResponse.#ctor">
+            <ignore/>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.ErrorResponse.Code">
+            <summary>
+            An unique code for the error.
+            </summary>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.ErrorResponse.Message">
+            <summary>
+            The error message.
+            </summary>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.ErrorResponse.Description">
+            <summary>
+            An optional description of the error.
+            </summary>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.ErrorResponse.Type">
+            <summary>
+            An optional error type, usually an Exception class type.
+            </summary>
+        </member>
+        <member name="T:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient">
+            <summary>
+            A strongly-typed .NET client class for the example licensing web service.
+            </summary>
+            <remarks>
+            A business processing error in the service call is converted into a throw of an
+            <see cref="T:System.ApplicationException"/>. Any other type of Exception indicates some kind
+            of unexpected error outside of the service processing logic.
+            </remarks>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.AuthenticateName(System.String,System.String,System.Boolean)">
+            <summary>
+              Authenticate licensing system account Name and password credentials.
+            </summary>
+            <param name="userName">Account user name.</param>
+            <param name="password">Account password.</param><param name="skipCache">Currently not used.</param><returns>
+      A <c>LicenceFull</c> class instance containing details of the attributes and permissions assigned to the account.
+    </returns><exception cref="T:System.ApplicationException">Thrown if there is a login processing error.</exception><remarks>
+      A successful authentication causes the web service to register a <i>session</i> with the client.
+      The <c>Id</c> of the session is recorded by the client class instance and is automatically added
+      to subsequent service call request headers. The logout and return calls will end the session
+      and remove the request header.
+    </remarks>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.AuthenticateId(System.String,System.String,System.Boolean)">
+            <summary>
+              Authenticate licensing system account Id and password credential 
+              authentication.
+            </summary>
+            <param name="userId">Account user Id.</param>
+            <param name="password">Account password.</param><param name="skipCache">Currently not used.</param><returns>
+      A <c>LicenceFull</c> class instance containing details of the attributes and permissions assigned to the account.
+    </returns><exception cref="T:System.ApplicationException">Thrown if there is a login processing error.</exception><remarks>
+      A successful authentication causes the web service to register a <i>session</i> with the client.
+      The <c>Id</c> of the session is recorded by the client class instance and is automatically added
+      to subsequent service call request headers. The logout and return calls will end the session
+      and remove the request header.
+    </remarks>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.GetServiceInfo">
+            <summary>
+              Gets service metadata information.
+            </summary>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ThrowError(System.Int32)">
+            <summary>
+              Causes a deliberate service internal error for testing.
+            </summary>
+            <param name="number">Some number.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.GetSupportsRealms">
+            <summary>
+              Gets a flag indicating if the licensing service provider supports realms.
+            </summary>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.GetNavigationData">
+            <summary>
+              Gets the navigation tree.
+            </summary>
+            <remarks>
+              Client applications can use the returned values to build custom navigation 
+              collections.
+            </remarks>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.GetDatabaseReport">
+            <summary>
+              Gets the database report.
+            </summary>
+            <remarks>
+              Client applications can use the returned items to build custom reports.
+            </remarks>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ReadRealm(System.String)">
+            <summary>
+              Reads a realm by Id.
+            </summary>
+            <remarks>
+              The response <c>hasError</c> property will be true if the realm is not found.
+            </remarks>
+            <param name="id">The Id of the realm to read.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ListRealms">
+            <summary>
+              Lists all realms.
+            </summary>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.UpsertRealm(RCS.Licensing.Provider.Shared.Entities.Realm)">
+            <summary>
+              Updates or inserts a customer.
+            </summary>
+            <remarks>
+              If the <c>Id</c> property is null then a new realm record is created, otherwise 
+              an existing realm with the Id is updated. The following properties are ignored: 
+              <c>Created</c>, <c>Customers</c>, <c>Users</c>.
+            </remarks>
+            <param name="realm">The Realm containing the values to update.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ValidateRealm(System.String)">
+            <summary>
+              Validates the properties of a realm.
+            </summary>
+            <param name="realmId">The Id of the parent realm to validate.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.DeleteRealm(System.String)">
+            <summary>
+              Deletes a realm by Id.
+            </summary>
+            <remarks>
+              The response integer is the number of licensing database rows affected by 
+              delete processing. Zero indicates that the realm was not found.
+            </remarks>
+            <param name="id">The Id of the realm to delete.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.DisconnectRealmChildCustomer(System.String,System.String)">
+            <summary>
+              Disconnect a realm from a customer.
+            </summary>
+            <param name="realmId">The Id of the parent realm.</param>
+            <param name="customerId">The Id of the child customer.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ConnectRealmChildCustomers(System.String,System.String[])">
+            <summary>
+              Connects a realm to customers.
+            </summary>
+            <param name="realmId">The parent realm Id.</param>
+            <param name="customerIds">The child customer Ids.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ReplaceRealmChildCustomers(System.String,System.String[])">
+            <summary>
+              Replaces the joins between a realm and customers.
+            </summary>
+            <param name="realmId">The parent realm Id.</param>
+            <param name="customerIds">The child customer Ids.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.DisconnectRealmChildUser(System.String,System.String)">
+            <summary>
+              Disconnect a realm from a user.
+            </summary>
+            <param name="realmId">The Id of the parent realm.</param>
+            <param name="userId">The Id of the child user.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ConnectRealmChildUsers(System.String,System.String[])">
+            <summary>
+              Connects a realm to users.
+            </summary>
+            <param name="realmId">The parent realm Id.</param>
+            <param name="userIds">The child user Ids.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ReplaceRealmChildUsers(System.String,System.String[])">
+            <summary>
+              Replaces the joins between a realm and users.
+            </summary>
+            <param name="realmId">The parent realm Id.</param>
+            <param name="userIds">The child user Ids.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ListCustomers">
+            <summary>
+              Lists all customers.
+            </summary>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ListCustomers(System.String[])">
+            <summary>
+              Gets a summary list of customers filtered by realm.
+            </summary>
+            <param name="ids">The realm Ids to filter the customer list response.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ListCustomerPicksForRealms(System.String[])">
+            <summary>
+              Gets a summary pick list of all customers filterd by realm Id.
+            </summary>
+            <remarks>
+              The returned array of lightweight <c>CustomerPick</c> objects can be used by 
+              clients to fill summary or pick lists of customers.
+            </remarks>
+            <param name="ids">An array of realm ids to filter customer pick list response.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.UpsertCustomer(RCS.Licensing.Provider.Shared.Entities.Customer)">
+            <summary>
+              Updates or inserts a customer.
+            </summary>
+            <remarks>
+              If the <c>Id</c> property is null then a new customer record is created, 
+              otherwise an existing customer with the Id is updated. The following properties 
+              are ignored: <c>Jobs</c>, <c>Realms</c>, <c>Users</c>.
+            </remarks>
+            <param name="customer">The Customer object providing the values to update.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ValidateCustomer(System.String)">
+            <param name="id">The Id of the customer to validate.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.DeleteCustomer(System.String)">
+            <summary>
+              Deletes a customer by Id.
+            </summary>
+            <remarks>
+              The response integer is the number of licensing database rows affected by 
+              delete processing. Zero indicates that the customer was not found.
+            </remarks>
+            <param name="id">The Id of the customer to delete.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ReadCustomer(System.String)">
+            <summary>
+              Reads a customer by Id.
+            </summary>
+            <remarks>
+              The response <c>hasError</c> property will be true if the customer is not 
+              found.
+            </remarks>
+            <param name="id">The Id of the customer to read.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ReadCustomersByName(System.String)">
+            <summary>
+              Reads customers by Name.
+            </summary>
+            <param name="name">The name of the customers to read.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.DisconnectCustomerChildJob(System.String,System.String)">
+            <summary>
+              Disconnect a customer from a job.
+            </summary>
+            <param name="customerId">The Id of the parent customer.</param>
+            <param name="jobId">The Id of the child job.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ConnectCustomerChildJobs(System.String,System.String[])">
+            <summary>
+              Connect a customer to jobs.
+            </summary>
+            <param name="customerId">The parent customer Id.</param>
+            <param name="jobIds">The child job Ids.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ReplaceCustomerChildJobs(System.String,System.String[])">
+            <summary>
+              Replaces the full set of customer jobs relations.
+            </summary>
+            <param name="customerId">The parent customer Id.</param>
+            <param name="jobIds">The child job Ids.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.DisconnectCustomerChildUser(System.String,System.String)">
+            <summary>
+              Disconnect a customer from a user.
+            </summary>
+            <param name="customerId">The Id of the parent customer.</param>
+            <param name="userId">The Id of the child user.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ConnectCustomerChildUsers(System.String,System.String[])">
+            <summary>
+              Connect a customer to users.
+            </summary>
+            <param name="customerId">The parent customer Id.</param>
+            <param name="userIds">The child user Ids.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ReplaceCustomerChildUsers(System.String,System.String[])">
+            <summary>
+              Replaces the full set of customer to user connections.
+            </summary>
+            <param name="customerId">The parent customer Id.</param>
+            <param name="userIds">The child user Ids.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ListStorageAccounts">
+            <summary>
+              Lists all Storage Accounts in the Azure Subscription associated with this web 
+              sersvice.
+            </summary>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.IsStorageAccountNameAvailable(System.String)">
+            <summary>
+              Checks if a Storage Account name is globally available.
+            </summary>
+            <param name="name">The name of the Storage Account to check.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.CreateStorageAccount(System.String,System.String,System.String,System.Boolean)">
+            <summary>
+              Creates a Storage Account.
+            </summary>
+            <param name="name">The Storage Account name to create.</param>
+            <param name="resourceGroupName">The resource group name to contain the account.</param>
+            <param name="location">The location (aka region) can be the short name like 'westus' or the full name like 'West US'.</param>
+            <param name="allowBlobPublicAccess">True to allow public access to blobs in containers in the account.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ReadJob(System.String)">
+            <summary>
+              Reads a job by Id.
+            </summary>
+            <remarks>
+              The response <c>hasError</c> property will be true if the job is not found.
+            </remarks>
+            <param name="id">The Id of the job to read.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ListJobs">
+            <summary>
+              Lists all jobs.
+            </summary>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.UpsertJob(RCS.Licensing.Provider.Shared.Entities.Job)">
+            <summary>
+              Updates or inserts a job.
+            </summary>
+            <remarks>
+              If the <c>Id</c> property is null then a new job record is created, otherwise 
+              an existing job with the Id is updated. The following properties are ignored: 
+              <c>Created</c>, <c>Users</c>.
+            </remarks>
+            <param name="job">The Job object providing the values to update.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ValidateJob(System.String)">
+            <param name="id">The Id of the job to validate.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.DeleteJob(System.String)">
+            <summary>
+              Deletes a job by Id.
+            </summary>
+            <remarks>
+              The response integer is the number of licensing database rows affected by 
+              delete processing. Zero indicates that the job was not found.
+            </remarks>
+            <param name="id">The Id of the job to read.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.DisconnectJobChildUser(System.String,System.String)">
+            <summary>
+              Disconnect a job from a user.
+            </summary>
+            <param name="jobId">The Id of the parent job.</param>
+            <param name="userId">The Id of the child user.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ConnectJobChildUsers(System.String,System.String[])">
+            <summary>
+              Connect a job to users.
+            </summary>
+            <param name="jobId">The parent job Id.</param>
+            <param name="userIds">The child user Ids.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ReplaceJobChildUsers(System.String,System.String[])">
+            <summary>
+              Replaces the full set of job to user connections.
+            </summary>
+            <param name="jobId">The parent job Id.</param>
+            <param name="userIds">The child user Ids.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.CompareJobsAndContainers">
+            <summary>
+              Compares licensing jobs against cloud containers.
+            </summary>
+            <returns>
+              A string of XML describing the differences between licensing and cloud jobs.
+            </returns>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.CreateJobContainer(System.String,RCS.Licensing.Example.WebService.Shared.JobContainerAccessType)">
+            <summary>
+              Creates a Job Container.
+            </summary>
+            <remarks>
+              Creates an Azure container with a name corresponding to an existing licensing 
+              job and sets the public access level to Blobs. The container is created in the 
+              Storage Account that corresponds to the job's parent customer.
+            </remarks>
+            <param name="jobId">The job Id of the container to create.</param>
+            <param name="accessType">Public access level to Blobs in the container.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.CreateUser(RCS.Licensing.Provider.Shared.Entities.User)">
+            <summary>
+              Create a user.
+            </summary>
+            <remarks>
+              These properties are ignored because they are internally generated by new user 
+              processing: <c>Id</c>, <c>Created</c>, <c>PassHash</c>, <c>Uid</c>, 
+              <c>Customers</c>, <c>Jobs</c>, <c>Realms</c>. All other property values are 
+              saved in the new user record.
+            </remarks>
+            <param name="user">The User containing the values to update.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ReadUser(System.String)">
+            <summary>
+              Reads a user by Id.
+            </summary>
+            <remarks>
+              The response <c>hasError</c> property will be true if the customer is not 
+              found.
+            </remarks>
+            <param name="id">The Id of the user to read.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ListUsers">
+            <summary>
+              Lists all users.
+            </summary>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ListUsers(System.String[])">
+            <summary>
+              Lists all users optionally filtered by realm Ids.
+            </summary>
+            <param name="ids">The Ids of the realms to filter the user list response.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ListUserPicksForRealms(System.String[])">
+            <summary>
+              List users, optionally filtered by realms.
+            </summary>
+            <remarks>
+              The returned array of lightweight <c>UserPick</c> objects can be used by 
+              clients to fill summary or pick lists of users.
+            </remarks>
+            <param name="ids">Optional realm Ids to filter the user pick list response.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.UpsertUser(RCS.Licensing.Provider.Shared.Entities.User)">
+            <summary>
+              Update a user.
+            </summary>
+            <remarks>
+              The <c>Id</c> primary key property identifies the User record to be updated. 
+              These properties are ignored because they are internally generated by new user 
+              processing: <c>Created</c>, <c>PassHash</c>, <c>Uid</c>, <c>Customers</c>, 
+              <c>Jobs</c>, <c>Realms</c>. All other property values are updated in the user 
+              record.
+            </remarks>
+            <param name="user">The User containing the values to update.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.DeleteUser(System.String)">
+            <summary>
+              Deletes a user by Id.
+            </summary>
+            <remarks>
+              The response integer is the number of licensing database rows affected by 
+              delete processing. Zero indicates that the user was not found.
+            </remarks>
+            <param name="id">The Id of the user to delete.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.DisconnectUserChildCustomer(System.String,System.String)">
+            <summary>
+              Disconnect a user from a customer.
+            </summary>
+            <param name="userId">The Id of the parent user.</param>
+            <param name="customerId">The Id of the child customer.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ConnectUserChildCustomers(System.String,System.String[])">
+            <summary>
+              Connects a user to customers.
+            </summary>
+            <param name="userId">The parent user Id.</param>
+            <param name="customerIds">The child customer Ids.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ReplaceUserChildCustomers(System.String,System.String[])">
+            <summary>
+              Replaces user and customer joins.
+            </summary>
+            <param name="userId">The parent user Id.</param>
+            <param name="customerIds">The child customer Ids.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.DisconnectUserChildJob(System.String,System.String)">
+            <summary>
+              Disconnect a user from a job.
+            </summary>
+            <param name="userId">The Id of the parent user.</param>
+            <param name="jobId">The Id of the child job.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ConnectUserChildJobs(System.String,System.String[])">
+            <summary>
+              Connects a user to jobs.
+            </summary>
+            <param name="userId">The parent user Id.</param>
+            <param name="jobIds">The child job Ids.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ReplaceUserChildJobs(System.String,System.String[])">
+            <summary>
+              Replaces user and job joins.
+            </summary>
+            <param name="userId">The parent user Id.</param>
+            <param name="jobIds">The child job Ids.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.DisconnectUserChildRealm(System.String,System.String)">
+            <summary>
+              Disconnect a user from a realm.
+            </summary>
+            <param name="userId">The Id of the parent user.</param>
+            <param name="realmId">The Id of the child realm.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ConnectUserChildRealms(System.String,System.String[])">
+            <summary>
+              connects a user to realms.
+            </summary>
+            <param name="userId">The parent user Id.</param>
+            <param name="realmIds">The child realm Ids.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.ReplaceUserChildRealms(System.String,System.String[])">
+            <summary>
+              Replaces all user to realm connections.
+            </summary>
+            <param name="userId">The parent user Id.</param>
+            <param name="realmIds">The child realm Ids.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.PasswordChange(System.String,System.String,System.String)">
+            <summary>
+              Changes a user's password.
+            </summary>
+            <param name="userId">The Id of the User to update.</param>
+            <param name="oldPassword">The old password.</param>
+            <param name="newPassword">The new password.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.PasswordChangePlea(System.String)">
+            <summary>
+              Sends a change password request through two-factor-authentication.
+            </summary>
+            <remarks>
+              Attempts to send a change password request via email so it can be verified by 
+              two-factor-authentication and then processed by an external service.
+            </remarks>
+            <param name="userId">The User Id adding a plea to change password.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.GetPlea(System.String)">
+            <summary>
+              Gets a plea.
+            </summary>
+            <remarks>
+              Applications can use this endpoint to retreive a previously registered plea, 
+              validate it, then perform whatever processing is required.
+            </remarks>
+            <param name="id">The plea id.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.UpdateAccount(System.String,System.String,System.String,System.String)">
+            <summary>
+              Updates specific user account values.
+            </summary>
+            <param name="userId">The account user Id.</param>
+            <param name="userName">The new value for the account user name.</param>
+            <param name="email">The new value for the account email address.</param>
+            <param name="comment">The new value for the account comment.</param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.#ctor(System.Net.Http.HttpClient,System.Boolean)">
+            <summary>
+            <para>
+              Constructs a service client with a custom <see cref="T:System.Net.Http.HttpClient" /> that will internally
+              be used to make calls to the web service.
+            </para>
+            <para>
+              The caller is expected to set the <see cref="P:System.Net.Http.HttpClient.BaseAddress" /> to point to the service.
+            </para>
+            <para>
+              If the client will be making any service calls that access the licensing database then a request
+              header with name <c>x-api-key</c> must be added to the client to authorise access.
+            </para>
+            </summary>
+            <param name="client">A custom <see cref="T:System.Net.Http.HttpClient" /> configured to call the licensing web service.&gt;</param>
+            <param name="throwOnError">
+      True to throw an <see cref="T:System.ApplicationException" /> if the standard response body property
+      <c>hasError</c> value is <c>true</c>. Otherwise the caller must inspect the <c>hasError</c> property
+      and perform their own error handling logic.
+    </param>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.#ctor(System.Uri,System.String,System.String,System.Boolean)">
+            <summary>
+              Constructs a service client for a licensing web service published at a specified base Url,
+              with an optional API Key to authorise access to the licensing database.
+            </summary>
+            <param name="serviceBaseUri">The Uri of the base address of the licensing web service.</param>
+            <param name="apiKey">An optional API Key which will be placed in request headers with the
+              name <c>x-api-key</c> to allow access to the licensing database.</param>
+              <param name="signature" />
+            <param name="throwOnError">
+      True to throw an <see cref="T:System.ApplicationException" /> if the standard response body property
+      <c>hasError</c> value is <c>true</c>. Otherwise the caller must inspect the <c>hasError</c> property
+      and perform their own error handling logic.
+    </param>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.Licence">
+            <summary>
+            Contains a reference to the account information return by a successful login.
+            The property value is set to null by a logout call.
+            </summary>
+        </member>
+        <member name="T:RCS.Licensing.Example.WebService.Shared.MockResponse">
+            <summary>
+            This class is only used for testing and sending back generic error responses.
+            </summary>
+        </member>
+        <member name="T:RCS.Licensing.Example.WebService.Shared.PleaItem">
+            <summary>
+            Contains the data for a 'plea' for authenticated work.
+            </summary>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.PleaItem.Id">
+            <summary>
+            The Id of the plea. The value is strongly random to prevent guessing attacks.
+            </summary>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.PleaItem.Created">
+            <summary>
+            The UTC time the plea was created.
+            </summary>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.PleaItem.Type">
+            <summary>
+            The plea type is expected to be a known string that defines the work requested in the plea.
+            The type is part of the contract between the application making the plea and the one that
+            will process it.
+            </summary>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.PleaItem.Data">
+            <summary>
+            Arbitrary data asociated with the plea. The meaning of the data will be specific to different plea types.
+            </summary>
+        </member>
+        <member name="T:RCS.Licensing.Example.WebService.Shared.ResponseWrap`1">
+            <summary>
+            All responses from the licensing service are an instance of this generic class.
+            </summary>
+            <typeparam name="T">The type of data in the response.</typeparam>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.ResponseWrap`1.Code">
+            <summary>
+            An error code which is required when <c>HasError</c> is True. The value should be unique
+            for different types of error conditions.
+            </summary>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.ResponseWrap`1.Message">
+            <summary>
+            A summary error message which is required when <c>HasError</c> is True.
+            </summary>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.ResponseWrap`1.Detail">
+            <summary>
+            A optional error details message which may be present when <c>HasError</c> is True.
+            </summary>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.ResponseWrap`1.HasError">
+            <summary>
+            A flag indicating if the response is an error or not. If the value is True then values are
+            expected in <c>Code</c> and <c>Message</c> to describe the error condition.
+            </summary>
+        </member>
+        <member name="P:RCS.Licensing.Example.WebService.Shared.ResponseWrap`1.Data">
+            <summary>
+            Arbitrary data expected to be returned when <c>HasError</c> is False. The value may be a scalar
+            value such as a number or string, or it may be a class which will generate JSON in different
+            shapes according to the class type.
+            </summary>
+        </member>
+        <member name="T:RCS.Licensing.Example.WebService.Shared.WorkerInfo">
+            <summary>
+            Contains the current state of a worker and is saved as a collection of worker history.
+            </summary>
+        </member>
+    </members>
+</doc>

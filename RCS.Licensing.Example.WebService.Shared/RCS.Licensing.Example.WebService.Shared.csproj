@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net8.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+    <PackageIcon>RCS.Licensing.Example.WebService.Shared.png</PackageIcon>
+    <Description>Library of classes shared clients and the example web service.</Description>
+    <IsPackable>true</IsPackable>
+    <PackageReleaseNotes>Under Construction</PackageReleaseNotes>
+    <PackageTags>redcentre</PackageTags>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
+    <PackageOutputPath>\\CONDOR\shared\Nuget\redcentre</PackageOutputPath>
+    <Configurations>Debug;Release;BPTest;BPLive</Configurations>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <NoWarn>8618;1591</NoWarn>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <DocumentationFile>RCS.Licensing.Example.WebService.Shared.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="readme.md" Pack="true" PackagePath="\" />
+    <None Update="RCS.Licensing.Example.WebService.Shared.png" Pack="True" PackagePath="\" />
+    <None Update="ExampleLicensingServiceClient-Generated.tt">
+      <LastGenOutput>ExampleLicensingServiceClient-Generated.cs</LastGenOutput>
+      <Generator>TextTemplatingFileGenerator</Generator>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="RCS.Licensing.Example.WebService.Shared.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="RCS.Azure.StorageAccount.Shared" Version="2.0.4" />
+    <PackageReference Include="RCS.Licensing.Provider.Shared" Version="8.1.13" />
+    <PackageReference Include="System.Text.Json" Version="8.0.5" />
+    <PackageReference Include="TSAPI.Public" Version="1.0.18" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="ExampleLicensingServiceClient-Generated.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ExampleLicensingServiceClient-Generated.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+</Project>

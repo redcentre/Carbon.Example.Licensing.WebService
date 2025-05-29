@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <Version>2.3.0</Version>
+    <Nullable>enable</Nullable>
+    <Author>Red Centre Software</Author>
+    <Company>Red Centre Software</Company>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+    <SignAssembly>True</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\RCS.Licensing.Example.WebService.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+</Project>

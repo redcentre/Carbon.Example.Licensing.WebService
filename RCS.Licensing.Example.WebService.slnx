@@ -1,0 +1,20 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="BPLive" />
+    <BuildType Name="BPTest" />
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+  </Configurations>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+    <File Path="Application.ttinclude" />
+    <File Path="Application.xml" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="RCS.Licensing.Example.WebService.snk" />
+    <File Path="README.md" />
+  </Folder>
+  <Project Path="RCS.Licensing.Example.WebService.UnitTests/RCS.Licensing.Example.WebService.UnitTests.csproj" />
+  <Project Path="RCS.Licensing.Example.WebService.Shared/RCS.Licensing.Example.WebService.Shared.csproj" />
+  <Project Path="RCS.Licensing.Example.WebService/RCS.Licensing.Example.WebService.csproj" />
+</Solution>

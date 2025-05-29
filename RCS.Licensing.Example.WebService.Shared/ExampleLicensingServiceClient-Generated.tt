@@ -1,0 +1,205 @@
+<#@ template debug="false" hostspecific="true" language="C#" #>
+<#@ output extension=".cs" #>
+<#@ assembly name="System.Core" #>
+<#@ assembly name="System.Xml" #>
+<#@ assembly name="System.Xml.Linq" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Xml.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Text.RegularExpressions" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ include file="..\Application.ttinclude" #>
+<#
+	string appxml = Host.ResolvePath(@"..\Application.xml");
+	var doc = XDocument.Load(appxml);
+	var app = App.FromDoc(doc);
+	EmitHeader();
+#>
+using System;
+using System.CodeDom.Compiler;
+using System.Net.Http;
+using System.Threading.Tasks;
+using RCS.Azure.StorageAccount.Shared;
+using RCS.Licensing.Provider.Shared;
+using RCS.Licensing.Provider.Shared.Entities;
+
+#nullable enable
+
+namespace RCS.Licensing.Example.WebService.Shared
+{
+	partial interface IExampleLicensingServiceClient
+	{
+<#
+	var query = app.Methods
+		.Where(m => m.Client != null && m.Web != null)
+		.GroupBy(m => m.Web.Controller)
+		.Select(g => new { Controller = g.Key, Methods = g.ToArray() })
+		.ToArray();
+	foreach (var tup in query)
+	{
+		int mix = 0;
+		EmitSep1(tup.Controller, mix);
+		foreach (var am in tup.Methods)
+		{
+			if (am.SkipClient) continue;
+#>
+		Task<ResponseWrap<<#=am.ResponseType#>>> <#=am.Name#>(<#=am.Client.ParamFullJoin#>);
+<#
+			++mix;
+		}
+	}
+#>
+	}
+
+	partial class ExampleLicensingServiceClient
+	{
+<#
+	foreach (var tup in query)
+	{
+		int mix = 0;
+		EmitSep2(tup.Controller, mix);
+		foreach (var am in tup.Methods)
+		{
+			if (am.SkipClient) continue;
+			string summary = am.Client.Summary ?? am.Web.Summary;
+			EmitLines("summary", summary);
+			string remarks = am.Client.Remarks ?? am.Web.Remarks;
+			EmitLines("remarks", remarks);
+			if (am.Client.Params?.Length > 0)
+			{
+				for (int i=0; i< am.Client.Params.Length; i++)
+				{
+					string bestdesc = am.GetBestParamDesc(i);
+					if (bestdesc != null)
+					{
+#>
+		/// <param name="<#=am.Client.Params[i].Name#>"><#=bestdesc#></param>
+<#
+					}
+				}
+			}
+			if (am.Client.Includes?.Length > 0)
+			{
+				foreach (var inc in am.Client.Includes)
+				{
+#>
+		/// <include file='DocHelp.xml' path='doc/<#=inc#>'/>
+<#
+				}
+			}
+			if (am.Client.Returns != null)
+			{
+#>
+		/// <returns>
+		///   <#=Unesc(am.Client.Returns)#>
+		/// </returns>
+<#
+			}
+			if (am.Obsolete != null)
+			{
+#>
+		[Obsolete("<#=am.Obsolete#>")]
+<#
+			}
+			string clientName = am.Client.Name ?? am.Name;
+#>
+		[GeneratedCode("<#=TTName#>", "<#=TTVer#>")]
+		public async Task<ResponseWrap<<#=am.ResponseType#>>> <#=clientName#>(<#=am.Client.ParamFullJoin#>)
+		{
+<#
+			string dolr = am.Web.Route.Contains('{') ? "$" : "";
+			if (am.Client.ParamsToWebRequest)
+			{
+				// This forces the call to be a POST or PUT where parameter values construct the request body object.
+#>
+			var request = new <#=am.Web.Params[0].Type#>(<#=am.Client.ParamNameSkipJoin#>);
+			HttpResponseMessage hrm = await Client.<#=am.Web.Method#>Async("<#=am.Web.RoutePrefix#>/<#=am.Web.Route#>", MakeContent(request));
+<#
+			}
+			else if (am.Web.Method == "Get" || am.Web.Method == "Delete")
+			{
+#>
+			HttpResponseMessage hrm = await Client.<#=am.Web.Method#>Async(<#=dolr#>"<#=am.Web.RoutePrefix#>/<#=am.Web.Route#>");
+<#
+			}
+			else if (am.Web.Method == "Post" || am.Web.Method == "Put")
+			{
+			// This is a direct POST or PUT of the parameter to the request body.
+#>
+			HttpResponseMessage hrm = await Client.<#=am.Web.Method#>Async("<#=am.Web.RoutePrefix#>/<#=am.Web.Route#>", MakeContent(<#=am.Web.Params[0].Name#>));
+<#
+			}
+			EmitReturn(am);
+#>
+		}
+
+<#
+			++mix;
+		}
+	}
+#>
+	}
+}
+<#+
+	void EmitSep1(string title, int mix)
+	{
+		title = title.PadRight(30, ' ');
+#>
+		// ┌───────────────────────────────────┐
+		// │   <#=title#>  │
+		// └───────────────────────────────────┘
+<#+
+	}
+	void EmitSep2(string title, int mix)
+	{
+		title = title.PadRight(30, ' ');
+#>
+		// ╔══════════════════════════════════╗
+		// ║                                  ║
+		// ║   <#=title#> ║
+		// ║                                  ║
+		// ╚══════════════════════════════════╝
+
+<#+
+	}
+	void EmitLines(string name, string text)
+	{
+		if (text == null) return;
+		string[] lines = Chop(Unesc(text));
+#>
+		/// <<#=name#>>
+<#+
+		foreach (string line in lines)
+		{
+#>
+		///   <#=line#>
+<#+
+		}
+#>
+		/// </<#=name#>>
+<#+
+	}
+	void EmitReturn(AppMethod am)
+	{
+		if (am.Client.InterceptResult)
+		{
+#>
+			var result = await UnwrapAndCheckResult<<#=am.ResponseType#>>(hrm, throwOnError);
+			Intercept<#=am.Name#>(result);
+			return result;
+<#+
+		}
+		else
+		{
+#>
+			return await UnwrapAndCheckResult<<#=am.ResponseType#>>(hrm, throwOnError);
+<#+
+		}
+	}
+	string[] Chop(string s)
+	{
+		int maxlen = 80;
+		MatchCollection mc = Regex.Matches(s, @"(.{1," + (maxlen - 1) + @"})(?:\s|$)");
+		return mc.Cast<Match>().Select(m => m.Value).ToArray();
+	}
+#>

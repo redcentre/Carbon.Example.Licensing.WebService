@@ -1,0 +1,177 @@
+<#+
+public sealed class App
+{
+	public AppMethod[] Methods { get; set; }
+	public static App FromDoc(XDocument doc)
+	{
+		var app = new App();
+		var mlist = new List<AppMethod>();
+		foreach (var melem in doc.Root.Elements("method"))
+		{
+			var am = new AppMethod();
+			mlist.Add(am);
+			am.Name = (string)melem.Attribute("name");
+			am.ResponseType = (string)melem.Attribute("responseType");
+			am.IsSimple = (bool?)melem.Attribute("simple") ?? false;
+			am.Obsolete = (string)melem.Attribute("obsolete");
+			am.SkipClient = (bool?)melem.Attribute("skipClient") ?? false;
+			am.IsAsync = (bool?)melem.Attribute("simple") ?? true;		// NOTE: DOESN'T SEEM TO BE USED IN ANY TEMPLATE
+			am.NonProvider = (bool?)melem.Attribute("nonProvider") ?? false;
+			am.IgnoreApi = (bool?)melem.Attribute("ignoreApi") ?? false;
+			var welem = melem.Element("web");
+			if (welem != null)
+			{
+				am.Web = new AppWeb();
+				am.Web.Controller = (string)welem.Attribute("controller");
+				am.Web.Summary = (string)welem.Element("summary");
+				am.Web.Remarks = (string)welem.Element("remarks");
+				am.Web.Route = (string)welem.Attribute("route");
+				am.Web.Method = (string)welem.Attribute("method");
+				am.Web.Anonymous = (bool?)welem.Attribute("anonymous") ?? false;
+				am.Web.RequiresSession = (bool?)welem.Attribute("requiresSession") ?? false;
+				am.Web.RequiresKey = (bool?)welem.Attribute("requiresKey") ?? false;
+				var pselem = welem.Element("parameters");
+				if (pselem != null)
+				{
+					var plist = new List<TParam>();
+					foreach (var pelem in pselem.Elements("parameter"))
+					{
+						var wp = new TParam();
+						plist.Add(wp);
+						wp.From = (string)pelem.Attribute("from");
+						wp.Name = (string)pelem.Attribute("name");
+						wp.Type = (string)pelem.Attribute("type");
+						wp.Description = (string)pelem.Attribute("description");
+					}
+					am.Web.Params = plist.ToArray();
+				}
+				var rselem = welem.Element("responses");
+				if (rselem != null)
+				{
+					var rlist = new List<WebResponse>();
+					foreach (var relem in rselem.Elements("response"))
+					{
+						var wr = new WebResponse();
+						rlist.Add(wr);
+						wr.Code = (int?)relem.Attribute("code") ?? 0;
+						wr.Comment = (string)relem;
+					}
+					am.Web.Responses = rlist.ToArray();
+				}
+			}
+			var celem = melem.Element("client");
+			if (celem != null)
+			{
+				am.Client = new AppClient();
+				am.Client.ParamsToWebRequest = (bool?)celem.Attribute("paramsToWebRequest") ?? false;
+				am.Client.InterceptResult = (bool?)celem.Attribute("interceptResult") ?? false;
+				am.Client.Name = (string)celem.Attribute("name");
+				am.Client.Summary = (string)celem.Element("summary");
+				am.Client.Remarks = (string)celem.Element("remarks");
+				am.Client.Returns = (string)celem.Element("returns");
+				am.Client.Includes = celem.Element("includes")?.Elements("include").Select(e => (string)e.Attribute("path")).ToArray();
+				var cselem = celem.Element("parameters");
+				if (cselem != null)
+				{
+					var plist = new List<TParam>();
+					foreach (var pelem in cselem.Elements("parameter"))
+					{
+						var wp = new TParam();
+						plist.Add(wp);
+						wp.Name = (string)pelem.Attribute("name");
+						wp.Type = (string)pelem.Attribute("type");
+						wp.Default = (string)pelem.Attribute("default");
+						wp.Description = (string)pelem.Attribute("description");
+						wp.SkipToRequest = (bool?)pelem.Attribute("skipToRequest") ?? false;
+					}
+					am.Client.Params = plist.ToArray();
+				}
+			}
+			var codeselem = melem.Element("codes");
+			am.Codes = codeselem?.Elements("code").Select(c => new Code() { Id = (int)c.Attribute("id"), Summary = (string)c }).ToArray() ?? new Code[0];
+		}
+		app.Methods = mlist.ToArray();
+		return app;
+	}
+}
+public sealed class AppMethod
+{
+	public string Name { get; set; }
+	public string ResponseType { get; set; }
+	public bool IsSimple { get; set; }
+	public string Obsolete { get; set; }
+	public bool SkipClient { get; set; }
+	public bool IsAsync { get; set; }
+	public bool NonProvider { get; set; }
+	public bool IgnoreApi { get; set; }
+	public AppWeb Web { get; set; }
+	public Code[] Codes { get; set; }
+	public AppClient Client { get; set; }
+	public string GetBestParamDesc(int index) => Client?.Params?.ElementAtOrDefault(index)?.Description ?? Web?.Params?.ElementAtOrDefault(index)?.Description;
+}
+public sealed class Code
+{
+	public int Id { get; set; }
+	public string Summary { get; set; }
+}
+public sealed class AppWeb
+{
+	public string Controller { get; set; }
+	public string RoutePrefix => Regex.Match(Controller, "(.+)Controller").Groups[1].Value.ToLower();
+	public string Summary { get; set; }
+	public string Remarks { get; set; }
+	public string Route { get; set; }
+	public string Method { get; set; }
+	public bool Anonymous { get; set; }
+	public bool RequiresSession { get; set; }
+	public bool RequiresKey { get; set; }
+	public TParam[] Params { get; set; }
+	public string ParamNameJoin => Params == null ? string.Empty : string.Join(", ", Params.Select(p => p.Name));
+	public string ParamPairJoin => Params == null ? string.Empty : string.Join(", ", Params.Select(p => $"{p.Type} {p.Name}"));
+	public string ParamFullJoin => Params == null ? string.Empty : string.Join(", ", Params.Select(p => (p.From == null ? "" : $"[{p.From}] ") + $"{p.Type} {p.Name}"));
+	public WebResponse[] Responses { get; set; }
+}
+public sealed class TParam
+{
+	public string From { get; set; }
+	public string Name { get; set; }
+	public string Type { get; set; }
+	public string Default { get; set; }
+	public string Description { get; set; }
+	public bool  SkipToRequest { get; set; }
+}
+public sealed class WebResponse
+{
+	public int Code { get; set; }
+	public string Comment { get; set; }
+}
+public sealed class AppClient
+{
+	public bool ParamsToWebRequest { get; set; }
+	public bool InterceptResult { get; set; }
+	public string Name { get; set; }
+	public string Summary { get; set; }
+	public string Remarks { get; set; }
+	public string Returns { get; set; }
+	public string[] Includes { get; set; }
+	public TParam[] Params { get; set; }
+	public string ParamNameSkipJoin => Params == null ? string.Empty : string.Join(", ", Params.Where(p => !p.SkipToRequest).Select(p => p.Name));
+	public string ParamNameJoin => Params == null ? string.Empty : string.Join(", ", Params.Select(p => p.Name));
+	public string ParamPairJoin => Params == null ? string.Empty : string.Join(", ", Params.Select(p => $"{p.Type} {p.Name}"));
+	public string ParamFullJoin => Params == null ? string.Empty : string.Join(", ", Params.Select(p => $"{p.Type} {p.Name}" + (p.Default == null ? "" : $" = {p.Default}")));
+}
+string TTName => Host.GetType().Name;
+Version TTVer => Host.GetType().Assembly.GetName().Version;
+string Unesc(string value) => value.Replace("(c)", "<c>").Replace("(/c)", "</c>").Trim();
+void EmitHeader()
+{
+#>
+//================================================================================================
+// <auto-generated>
+// This code was generated by a tool on machine <#=Environment.MachineName#> at local time <#=DateTime.Now.ToString()#>.
+// Changes to this file may cause incorrect behavior and will be lost if the code is regenerated.
+// </auto-generated>
+//================================================================================================
+<#+
+}
+#>

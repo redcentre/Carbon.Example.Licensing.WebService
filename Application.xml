@@ -1,0 +1,978 @@
+<?xml version="1.0" encoding="utf-8"?>
+<application>
+
+  <!-- AUTHENTICATION -->
+
+  <method name="AuthenticateName" responseType="LicenceFull" simple="true">
+    <web controller="AuthenticationController" route="name" method="Post" anonymous="true">
+      <summary>Authenticate licensing system account Name and password credentials.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="LoginNameRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="userName" type="string" description="Account user name."/>
+        <parameter name="password" type="string"/>
+        <parameter name="skipCache" type="bool" default="false"/>
+      </parameters>
+      <includes>
+        <include path="members[@name=&quot;AuthCommon&quot;]/*"/>
+      </includes>
+    </client>
+  </method>
+
+  <method name="AuthenticateId" responseType="LicenceFull" simple="true">
+    <web controller="AuthenticationController" route="id" method="Post" anonymous="true">
+      <summary>Authenticate licensing system account Id and password credential authentication.</summary>
+      <parameters>
+        <parameter name="request" type="LoginIdRequest" description="A serialized (c)LoginIdRequest(/c) in the request body."/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="userId" type="string" description="Account user Id."/>
+        <parameter name="password" type="string"/>
+        <parameter name="skipCache" type="bool" default="false"/>
+      </parameters>
+      <includes>
+        <include path="members[@name=&quot;AuthCommon&quot;]/*"/>
+      </includes>
+    </client>
+  </method>
+
+  <!-- SERVICE -->
+
+  <method name="GetServiceInfo" responseType="ServiceInfo" nonProvider="true">
+    <web controller="ServiceController" route="info" method="Get" anonymous="true">
+      <summary>Gets service metadata information.</summary>
+    </web>
+    <client>
+    </client>
+  </method>
+
+  <method name="ThrowError" responseType="MockResponse" nonProvider="true">
+    <web controller="ServiceController" route="throw" method="Get" anonymous="true">
+      <summary>Causes a deliberate service internal error for testing.</summary>
+      <parameters>
+        <parameter from="FromRoute" name="number" type="int" description="Some number."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="number" type="int"/>
+      </parameters>
+    </client>
+  </method>
+
+  <!-- PROVIDER -->
+
+  <method name="GetSupportsRealms" responseType="bool" nonProvider="true">
+    <web controller="ProviderController" route="property/supportsrealms" method="Get" anonymous="true">
+      <summary>Gets a flag indicating if the licensing service provider supports realms.</summary>
+    </web>
+    <client>
+    </client>
+  </method>
+
+  <method name="GetNavigationData" responseType="NavData" simple="true">
+    <web controller="ProviderController" route="navdata" method="Get" requiresKey="true">
+      <summary>Gets the navigation tree.</summary>
+      <remarks>Client applications can use the returned values to build custom navigation collections.</remarks>
+    </web>
+    <client>
+    </client>
+  </method>
+
+  <method name="GetDatabaseReport" responseType="ReportItem[]" simple="true">
+    <web controller="ProviderController" route="dbreport" method="Get" requiresKey="true">
+      <summary>Gets the database report.</summary>
+      <remarks>Client applications can use the returned items to build custom reports.</remarks>
+    </web>
+    <client>
+    </client>
+  </method>
+
+  <!-- REALM -->
+
+  <method name="ReadRealm" responseType="Realm?" simple="true">
+    <web controller="RealmController" route="read/{id}" method="Get" requiresKey="true">
+      <summary>Reads a realm by Id.</summary>
+      <remarks>
+        The response (c)hasError(/c) property will be <b>true</b> if the realm is not found.
+      </remarks>
+      <parameters>
+        <parameter from="FromRoute" name="id" type="string" description="The Id of the realm to read."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="id" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ListRealms" responseType="Realm[]" simple="true">
+    <web controller="RealmController" route="list" method="Get" requiresKey="true">
+      <summary>Lists all realms.</summary>
+    </web>
+    <client>
+    </client>
+  </method>
+
+  <method name="UpsertRealm" responseType="UpsertResult&lt;Realm&gt;" simple="true">
+    <web controller="RealmController" route="" method="Put" requiresKey="true">
+      <summary>Updates or inserts a customer.</summary>
+      <remarks>If the (c)Id(/c) property is null then a new realm record is created, otherwise an existing realm with the Id is updated. The following properties are ignored: (c)Created(/c), (c)Customers(/c), (c)Users(/c).</remarks>
+      <parameters>
+        <parameter from="FromBody" name="realm" type="Realm"/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="realm" type="Realm" description="The Realm containing the values to update."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ValidateRealm" responseType="string[]?" simple="true">
+    <web controller="RealmController" route="validate/{realmId}" method="Get" requiresKey="true">
+      <summary>Validates the properties of a realm.</summary>
+      <parameters>
+        <parameter from="FromRoute" name="realmId" type="string" description="The Id of the parent realm to validate."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="realmId" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="DeleteRealm" responseType="int" simple="true">
+    <web controller="RealmController" route="{id}" method="Delete" requiresKey="true">
+      <summary>Deletes a realm by Id.</summary>
+      <remarks>The response integer is the number of licensing database rows affected by delete processing. Zero indicates that the realm was not found.</remarks>
+      <parameters>
+        <parameter from="FromRoute" name="id" type="string" description="The Id of the realm to delete."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="id" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="DisconnectRealmChildCustomer" responseType="Realm?" simple="true">
+    <web controller="RealmController" route="disconnect/{realmId}/customer/{customerId}" method="Get" requiresKey="true">
+      <summary>Disconnect a realm from a customer.</summary>
+      <parameters>
+        <parameter from="FromRoute" name="realmId" type="string" description="The Id of the parent realm."/>
+        <parameter from="FromRoute" name="customerId" type="string" description="The Id of the child customer."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="realmId" type="string"/>
+        <parameter name="customerId" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ConnectRealmChildCustomers" responseType="Realm?" simple="true">
+    <web controller="RealmController" route="connect/customers" method="Post" requiresKey="true">
+      <summary>Connects a realm to customers.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="JoinsRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="realmId" type="string" description="The parent realm Id."/>
+        <parameter name="customerIds" type="string[]" description="The child customer Ids."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ReplaceRealmChildCustomers" responseType="Realm?" simple="true">
+    <web controller="RealmController" route="replace/customers" method="Post" requiresKey="true">
+      <summary>Replaces the joins between a realm and customers.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="JoinsRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="realmId" type="string" description="The parent realm Id."/>
+        <parameter name="customerIds" type="string[]" description="The child customer Ids."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="DisconnectRealmChildUser" responseType="Realm?" simple="true">
+    <web controller="RealmController" route="disconnect/{realmId}/user/{userId}" method="Get" requiresKey="true">
+      <summary>Disconnect a realm from a user.</summary>
+      <parameters>
+        <parameter from="FromRoute" name="realmId" type="string" description="The Id of the parent realm."/>
+        <parameter from="FromRoute" name="userId" type="string" description="The Id of the child user."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="realmId" type="string"/>
+        <parameter name="userId" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ConnectRealmChildUsers" responseType="Realm?" simple="true">
+    <web controller="RealmController" route="connect/users" method="Post" requiresKey="true">
+      <summary>Connects a realm to users.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="JoinsRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="realmId" type="string" description="The parent realm Id."/>
+        <parameter name="userIds" type="string[]" description="The child user Ids."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ReplaceRealmChildUsers" responseType="Realm?" simple="true">
+    <web controller="RealmController" route="replace/users" method="Post" requiresKey="true">
+      <summary>Replaces the joins between a realm and users.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="JoinsRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="realmId" type="string" description="The parent realm Id."/>
+        <parameter name="userIds" type="string[]" description="The child user Ids."/>
+      </parameters>
+    </client>
+  </method>
+
+  <!-- CUSTOMER -->
+
+  <method name="ListCustomers" responseType="Customer[]" simple="true">
+    <web controller="CustomerController" route="list" method="Get" requiresKey="true">
+      <summary>Lists all customers.</summary>
+    </web>
+    <client>
+    </client>
+  </method>
+
+  <method name="ListCustomers" responseType="Customer[]" simple="true">
+    <web controller="CustomerController" route="list" method="Post" requiresKey="true">
+      <summary>Gets a summary list of customers filtered by realm.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="IdFilterRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="ids" type="params string[]" description="The realm Ids to filter the customer list response."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ListCustomerPicksForRealms" responseType="CustomerPick[]">
+    <web controller="CustomerController" route="list/picks" method="Post" requiresKey="true">
+      <summary>Gets a summary pick list of all customers filterd by realm Id.</summary>
+      <remarks>The returned array of lightweight (c)CustomerPick(/c) objects can be used by clients to fill summary or pick lists of customers.</remarks>
+      <parameters>
+        <parameter from="FromBody" name="request" type="IdFilterRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="ids" type="params string[]?" description="An array of realm ids to filter customer pick list response."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="UpsertCustomer" responseType="UpsertResult&lt;Customer&gt;" simple="true">
+    <web controller="CustomerController" route="" method="Put" requiresKey="true">
+      <summary>Updates or inserts a customer.</summary>
+      <remarks>If the (c)Id(/c) property is null then a new customer record is created, otherwise an existing customer with the Id is updated. The following properties are ignored: (c)Jobs(/c), (c)Realms(/c), (c)Users(/c).</remarks>
+      <parameters>
+        <parameter from="FromBody" name="customer" type="Customer"/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="customer" type="Customer" description="The Customer object providing the values to update."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ValidateCustomer" responseType="string[]" simple="true">
+    <web controller="CustomerController" route="validate/{id}" method="Get" requiresKey="true">
+      <parameters>
+        <parameter from="FromRoute" name="id" type="string" description="The Id of the customer to validate."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="id" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="DeleteCustomer" responseType="int" simple="true">
+    <web controller="CustomerController" route="{id}" method="Delete" requiresKey="true">
+      <summary>Deletes a customer by Id.</summary>
+      <remarks>The response integer is the number of licensing database rows affected by delete processing. Zero indicates that the customer was not found.</remarks>
+      <parameters>
+        <parameter from="FromRoute" name="id" type="string" description="The Id of the customer to delete."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="id" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ReadCustomer" responseType="Customer?" simple="true">
+    <web controller="CustomerController" route="read/{id}" method="Get" requiresKey="true">
+      <summary>Reads a customer by Id.</summary>
+      <remarks>
+        The response (c)hasError(/c) property will be <b>true</b> if the customer is not found.
+      </remarks>
+      <parameters>
+        <parameter from="FromRoute" name="id" type="string" description="The Id of the customer to read."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="id" type="string"/>
+      </parameters>
+    </client>
+    <codes>
+      <code id="1">Customer not found.</code>
+    </codes>
+  </method>
+
+  <method name="ReadCustomersByName" responseType="Customer[]" simple="true">
+    <web controller="CustomerController" route="read/name/{name}" method="Get" requiresKey="true">
+      <summary>Reads customers by Name.</summary>
+      <parameters>
+        <parameter from="FromRoute" name="name" type="string" description="The name of the customers to read."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="name" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="DisconnectCustomerChildJob" responseType="Customer?" simple="true">
+    <web controller="CustomerController" route="disconnect/{customerId}/job/{jobId}" method="Get" requiresKey="true">
+      <summary>Disconnect a customer from a job.</summary>
+      <parameters>
+        <parameter from="FromRoute" name="CustomerId" type="string" description="The Id of the parent customer."/>
+        <parameter from="FromRoute" name="jobId" type="string" description="The Id of the child job."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="customerId" type="string"/>
+        <parameter name="jobId" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ConnectCustomerChildJobs" responseType="Customer?" simple="true">
+    <web controller="CustomerController" route="connect/jobs" method="Post" requiresKey="true">
+      <summary>Connect a customer to jobs.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="JoinsRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="customerId" type="string" description="The parent customer Id."/>
+        <parameter name="jobIds" type="string[]" description="The child job Ids."/>
+      </parameters>
+    </client>
+    <codes>
+      <code id="1">Customer not found.</code>
+    </codes>
+  </method>
+
+  <method name="ReplaceCustomerChildJobs" responseType="Customer?" simple="true">
+    <web controller="CustomerController" route="replace/jobs" method="Post" requiresKey="true">
+      <summary>Replaces the full set of customer jobs relations.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="JoinsRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="customerId" type="string" description="The parent customer Id."/>
+        <parameter name="jobIds" type="string[]" description="The child job Ids."/>
+      </parameters>
+    </client>
+    <codes>
+      <code id="1">Customer not found.</code>
+    </codes>
+  </method>
+
+  <method name="DisconnectCustomerChildUser" responseType="Customer?" simple="true">
+    <web controller="CustomerController" route="disconnect/{customerId}/user/{userId}" method="Get" requiresKey="true">
+      <summary>Disconnect a customer from a user.</summary>
+      <parameters>
+        <parameter from="FromRoute" name="customerId" type="string" description="The Id of the parent customer."/>
+        <parameter from="FromRoute" name="userId" type="string" description="The Id of the child user."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="customerId" type="string"/>
+        <parameter name="userId" type="string"/>
+      </parameters>
+    </client>
+    <codes>
+      <code id="1">Customer not found.</code>
+    </codes>
+  </method>
+
+  <method name="ConnectCustomerChildUsers" responseType="Customer?" simple="true">
+    <web controller="CustomerController" route="connect/users" method="Post" requiresKey="true">
+      <summary>Connect a customer to users.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="JoinsRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="customerId" type="string" description="The parent customer Id."/>
+        <parameter name="userIds" type="string[]" description="The child user Ids."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ReplaceCustomerChildUsers" responseType="Customer?" simple="true">
+    <web controller="CustomerController" route="replace/users" method="Post" requiresKey="true">
+      <summary>Replaces the full set of customer to user connections.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="JoinsRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="customerId" type="string" description="The parent customer Id."/>
+        <parameter name="userIds" type="string[]" description="The child user Ids."/>
+      </parameters>
+    </client>
+    <codes>
+      <code id="1">Customer not found.</code>
+    </codes>
+  </method>
+
+  <method name="ListStorageAccounts" responseType="SubscriptionAccount[]" simple="true">
+    <web controller="CustomerController" route="azure/storage/list" method="Get" requiresKey="true">
+      <summary>Lists all Storage Accounts in the Azure Subscription associated with this web sersvice.</summary>
+    </web>
+    <client>
+    </client>
+  </method>
+
+  <method name="IsStorageAccountNameAvailable" responseType="bool?" simple="true">
+    <web controller="CustomerController" route="azure/storage/available/{name}" method="Get" requiresKey="true">
+      <summary>Checks if a Storage Account name is globally available.</summary>
+      <parameters>
+        <parameter from="FromRoute" name="name" type="string" description="The name of the Storage Account to check."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="name" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="CreateStorageAccount" responseType="SubscriptionAccount?" simple="true">
+    <web controller="CustomerController" route="azure/storage" method="Post" requiresKey="true">
+      <summary>Creates a Storage Account.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="CreateStorageAccountRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="name" type="string" description="The Storage Account name to create."/>
+        <parameter name="resourceGroupName" type="string" description="The resource group name to contain the account."/>
+        <parameter name="location" type="string" description="The location (aka region) can be the short name like 'westus' or the full name like 'West US'."/>
+        <parameter name="allowBlobPublicAccess" type="bool" description="True to allow public access to blobs in containers in the account."/>
+      </parameters>
+    </client>
+  </method>
+
+  <!-- JOB -->
+
+  <method name="ReadJob" responseType="Job?" simple="true">
+    <web controller="JobController" route="read/{id}" method="Get" requiresKey="true">
+      <summary>Reads a job by Id.</summary>
+      <remarks>
+        The response (c)hasError(/c) property will be <b>true</b> if the job is not found.
+      </remarks>
+      <parameters>
+        <parameter from="FromRoute" name="id" type="string" description="The Id of the job to read."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="id" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ListJobs" responseType="Job[]" simple="true">
+    <web controller="JobController" route="list" method="Get" requiresKey="true">
+      <summary>Lists all jobs.</summary>
+    </web>
+    <client>
+    </client>
+  </method>
+
+  <method name="UpsertJob" responseType="UpsertResult&lt;Job&gt;" simple="true">
+    <web controller="JobController" route="" method="Put" requiresKey="true">
+      <summary>Updates or inserts a job.</summary>
+      <remarks>If the (c)Id(/c) property is null then a new job record is created, otherwise an existing job with the Id is updated. The following properties are ignored: (c)Created(/c), (c)Users(/c).</remarks>
+      <parameters>
+        <parameter from="FromBody" name="job" type="Job"/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="job" type="Job" description="The Job object providing the values to update."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ValidateJob" responseType="string[]" simple="true">
+    <web controller="JobController" route="validate/{id}" method="Get" requiresKey="true">
+      <parameters>
+        <parameter from="FromRoute" name="id" type="string" description="The Id of the job to validate."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="id" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="DeleteJob" responseType="int" simple="true">
+    <web controller="JobController" route="{id}" method="Delete" requiresKey="true">
+      <summary>Deletes a job by Id.</summary>
+      <remarks>The response integer is the number of licensing database rows affected by delete processing. Zero indicates that the job was not found.</remarks>
+      <parameters>
+        <parameter from="FromRoute" name="id" type="string" description="The Id of the job to read."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="id" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="DisconnectJobChildUser" responseType="Job?" simple="true">
+    <web controller="JobController" route="disconnect/{jobId}/user/{userId}" method="Get" requiresKey="true">
+      <summary>Disconnect a job from a user.</summary>
+      <parameters>
+        <parameter from="FromRoute" name="JobId" type="string" description="The Id of the parent job."/>
+        <parameter from="FromRoute" name="userId" type="string" description="The Id of the child user."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="jobId" type="string"/>
+        <parameter name="userId" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ConnectJobChildUsers" responseType="Job?" simple="true">
+    <web controller="JobController" route="connect/users" method="Post" requiresKey="true">
+      <summary>Connect a job to users.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="JoinsRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="jobId" type="string" description="The parent job Id."/>
+        <parameter name="userIds" type="string[]" description="The child user Ids."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ReplaceJobChildUsers" responseType="Job?" simple="true">
+    <web controller="JobController" route="replace/users" method="Post" requiresKey="true">
+      <summary>Replaces the full set of job to user connections.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="JoinsRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="jobId" type="string" description="The parent job Id."/>
+        <parameter name="userIds" type="string[]" description="The child user Ids."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="CompareJobsAndContainers" responseType="string">
+    <web controller="JobController" route="compare" method="Get" requiresKey="true">
+      <summary>Compares licensing jobs against cloud containers.</summary>
+    </web>
+    <client>
+      <returns>A string of XML describing the differences between licensing and cloud jobs.</returns>
+    </client>
+  </method>
+
+  <method name="CreateJobContainer" responseType="bool" simple="true">
+    <web controller="JobController" route="azure/container" method="Post" requiresKey="true">
+      <summary>Creates a Job Container.</summary>
+      <remarks>Creates an Azure container with a name corresponding to an existing licensing job and sets the public access level to Blobs. The container is created in the Storage Account that corresponds to the job's parent customer.</remarks>
+      <parameters>
+        <parameter from="FromBody" name="request" type="CreateJobContainerRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="jobId" type="string" description="The job Id of the container to create."/>
+        <parameter name="accessType" type="JobContainerAccessType" description="Public access level to Blobs in the container."/>
+      </parameters>
+    </client>
+    <codes>
+      <code id="1">Job not found.</code>
+      <code id="2">No parent customer Id.</code>
+      <code id="3">Parent customer not found.</code>
+      <code id="4">No customer storage key.</code>
+      <code id="5">Failed to create container.</code>
+    </codes>
+  </method>
+
+  <!-- USER -->
+
+  <method name="CreateUser" responseType="UpsertResult&lt;User&gt;">
+    <web controller="UserController" route="create" method="Post" requiresKey="true">
+      <summary>Create a user.</summary>
+      <remarks>These properties are ignored because they are internally generated by new user processing: (c)Id(/c), (c)Created(/c), (c)PassHash(/c), (c)Uid(/c), (c)Customers(/c), (c)Jobs(/c), (c)Realms(/c). All other property values are saved in the new user record.</remarks>
+      <parameters>
+        <parameter from="FromBody" name="user" type="User"/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="user" type="User" description="The User containing the values to update."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ReadUser" responseType="User?" simple="true">
+    <web controller="UserController" route="read/{id}" method="Get" requiresKey="true">
+      <summary>Reads a user by Id.</summary>
+      <remarks>
+        The response (c)hasError(/c) property will be <b>true</b> if the customer is not found.
+      </remarks>
+      <parameters>
+        <parameter from="FromRoute" name="id" type="string" description="The Id of the user to read."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="id" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ListUsers" responseType="User[]" simple="true">
+    <web controller="UserController" route="list" method="Get" requiresKey="true">
+      <summary>Lists all users.</summary>
+    </web>
+    <client>
+
+    </client>
+  </method>
+
+  <method name="ListUsers" responseType="User[]" simple="true">
+    <web controller="UserController" route="list" method="Post" requiresKey="true">
+      <summary>Lists all users optionally filtered by realm Ids.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="IdFilterRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="ids" type="params string[]" description="The Ids of the realms to filter the user list response."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ListUserPicksForRealms" responseType="UserPick[]">
+    <web controller="UserController" route="list/picks" method="Post" requiresKey="true">
+      <summary>List users, optionally filtered by realms.</summary>
+      <remarks>The returned array of lightweight (c)UserPick(/c) objects can be used by clients to fill summary or pick lists of users.</remarks>
+      <parameters>
+        <parameter from="FromBody" name="request" type="IdFilterRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="ids" type="params string[]?" description="Optional realm Ids to filter the user pick list response."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="UpsertUser" responseType="UpsertResult&lt;User&gt;" simple="true">
+    <web controller="UserController" route="" method="Put" requiresKey="true">
+      <summary>Update a user.</summary>
+      <remarks>The (c)Id(/c) primary key property identifies the User record to be updated. These properties are ignored because they are internally generated by new user processing: (c)Created(/c), (c)PassHash(/c), (c)Uid(/c), (c)Customers(/c), (c)Jobs(/c), (c)Realms(/c). All other property values are updated in the user record.</remarks>
+      <parameters>
+        <parameter from="FromBody" name="user" type="User"/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="user" type="User" description="The User containing the values to update."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="DeleteUser" responseType="int" simple="true">
+    <web controller="UserController" route="{id}" method="Delete" requiresKey="true">
+      <summary>Deletes a user by Id.</summary>
+      <remarks>The response integer is the number of licensing database rows affected by delete processing. Zero indicates that the user was not found.</remarks>
+      <parameters>
+        <parameter from="FromRoute" name="id" type="string" description="The Id of the user to delete."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="id" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="DisconnectUserChildCustomer" responseType="User?" simple="true">
+    <web controller="UserController" route="disconnect/{userId}/customer/{customerId}" method="Get" requiresKey="true">
+      <summary>Disconnect a user from a customer.</summary>
+      <parameters>
+        <parameter from="FromRoute" name="userId" type="string" description="The Id of the parent user."/>
+        <parameter from="FromRoute" name="customerId" type="string" description="The Id of the child customer."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="userId" type="string"/>
+        <parameter name="customerId" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ConnectUserChildCustomers" responseType="User?" simple="true">
+    <web controller="UserController" route="connect/customers" method="Post" requiresKey="true">
+      <summary>Connects a user to customers.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="JoinsRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="userId" type="string" description="The parent user Id."/>
+        <parameter name="customerIds" type="string[]" description="The child customer Ids."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ReplaceUserChildCustomers" responseType="User?" simple="true">
+    <web controller="UserController" route="replace/customers" method="Post" requiresKey="true">
+      <summary>Replaces user and customer joins.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="JoinsRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="userId" type="string" description="The parent user Id."/>
+        <parameter name="customerIds" type="string[]" description="The child customer Ids."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="DisconnectUserChildJob" responseType="User?" simple="true">
+    <web controller="UserController" route="disconnect/{userId}/job/{jobId}" method="Get" requiresKey="true">
+      <summary>Disconnect a user from a job.</summary>
+      <parameters>
+        <parameter from="FromRoute" name="userId" type="string" description="The Id of the parent user."/>
+        <parameter from="FromRoute" name="jobId" type="string" description="The Id of the child job."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="userId" type="string"/>
+        <parameter name="jobId" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ConnectUserChildJobs" responseType="User?" simple="true">
+    <web controller="UserController" route="connect/jobs" method="Post" requiresKey="true">
+      <summary>Connects a user to jobs.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="JoinsRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="userId" type="string" description="The parent user Id."/>
+        <parameter name="jobIds" type="string[]" description="The child job Ids."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ReplaceUserChildJobs" responseType="User?" simple="true">
+    <web controller="UserController" route="replace/jobs" method="Post" requiresKey="true">
+      <summary>Replaces user and job joins.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="JoinsRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="userId" type="string" description="The parent user Id."/>
+        <parameter name="jobIds" type="string[]" description="The child job Ids."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="DisconnectUserChildRealm" responseType="User?" simple="true">
+    <web controller="UserController" route="disconnect/{userId}/realm/{realmId}" method="Get" requiresKey="true">
+      <summary>Disconnect a user from a realm.</summary>
+      <parameters>
+        <parameter from="FromRoute" name="userId" type="string" description="The Id of the parent user."/>
+        <parameter from="FromRoute" name="realmId" type="string" description="The Id of the child realm."/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="userId" type="string"/>
+        <parameter name="realmId" type="string"/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ConnectUserChildRealms" responseType="User?" simple="true">
+    <web controller="UserController" route="connect/realms" method="Post" requiresKey="true">
+      <summary>connects a user to realms.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="JoinsRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="userId" type="string" description="The parent user Id."/>
+        <parameter name="realmIds" type="string[]" description="The child realm Ids."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="ReplaceUserChildRealms" responseType="User?" simple="true">
+    <web controller="UserController" route="replace/realms" method="Post" requiresKey="true">
+      <summary>Replaces all user to realm connections.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="JoinsRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="userId" type="string" description="The parent user Id."/>
+        <parameter name="realmIds" type="string[]" description="The child realm Ids."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="PasswordChange" responseType="int" simple="true" ignoreApi="true">
+    <web controller="UserController" route="password/change" method="Post" requiresKey="true">
+      <summary>Changes a user's password.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="PasswordChangeRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="userId" type="string" description="The Id of the User to update."/>
+        <parameter name="oldPassword" type="string" description="The old password."/>
+        <parameter name="newPassword" type="string" description="The new password."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="PasswordChangePlea" responseType="string?" simple="true">
+    <web controller="UserController" route="plea/password/{userId}" method="Post" requiresKey="true">
+      <summary>Sends a change password request through two-factor-authentication.</summary>
+      <remarks>
+        Attempts to send a change password request via email so it can be verified by two-factor-authentication and then processed by an external service.
+      </remarks>
+      <parameters>
+        <parameter from="FromRoute" name="userId" type="string"/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="userId" type="string" description="The User Id adding a plea to change password."/>
+      </parameters>
+    </client>
+    <codes>
+      <code id="1">User not found.</code>
+      <code id="11">User has no email address.</code>
+      <code id="12">Email configuration values undefined.</code>
+      <code id="13">Storage configuration values undefined.</code>
+      <code id="14">Email send failed.</code>
+    </codes>
+  </method>
+
+  <method name="GetPlea" responseType="PleaItem?" simple="true">
+    <web controller="UserController" route="plea/{id}" method="Get" requiresKey="true">
+      <summary>Gets a plea.</summary>
+      <remarks>Applications can use this endpoint to retreive a previously registered plea, validate it, then perform whatever processing is required.</remarks>
+      <parameters>
+        <parameter from="FromRoute" name="id" type="string"/>
+      </parameters>
+    </web>
+    <client>
+      <parameters>
+        <parameter name="id" type="string" description="The plea id."/>
+      </parameters>
+    </client>
+  </method>
+
+  <method name="UpdateAccount" responseType="int" simple="true">
+    <web controller="UserController" route="account" method="Put" requiresKey="true">
+      <summary>Updates specific user account values.</summary>
+      <parameters>
+        <parameter from="FromBody" name="request" type="UpdateAccountRequest"/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true">
+      <parameters>
+        <parameter name="userId" type="string" description="The account user Id."/>
+        <parameter name="userName" type="string" description="The new value for the account user name."/>
+        <parameter name="email" type="string?" description="The new value for the account email address."/>
+        <parameter name="comment" type="string?" description="The new value for the account comment."/>
+      </parameters>
+    </client>
+  </method>
+
+</application>
