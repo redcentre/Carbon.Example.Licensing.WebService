@@ -87,10 +87,21 @@ namespace RCS.Licensing.Example.WebService.Shared
 		}
 
 		/// <summary>
-		/// Contains a reference to the account information return by a successful login.
-		/// The property value is set to null by a logout call.
+		/// Contains the licensing information returned by the last successful authentication call.
+		/// The property is set automatically by the authentication call so there is no need for the
+		/// client to manually set this property.
 		/// </summary>
-		public LicenceInfo? Licence { get; private set; }
+		public LicenceFull? Licence { get; set; }
+
+		/// <summary>
+		/// Only the three authentication methods need some special handling to get the LicenceFull
+		/// coming back from the licensing provider into a smaller LicenceInfo class
+		/// </summary>
+		/// <param name="licence"></param>
+		void InspectLicence(LicenceFull licence)
+		{
+			Licence = licence;
+		}
 
 		#region Helpers
 
@@ -122,12 +133,16 @@ namespace RCS.Licensing.Example.WebService.Shared
 
 		static async Task<ResponseWrap<T>> UnwrapAndCheckResult<T>(HttpResponseMessage hrm, bool throwOnError)
 		{
+			string body = await hrm.Content.ReadAsStringAsync();
 			if (hrm.StatusCode != HttpStatusCode.OK)
 			{
 				// This service ONLY returns status 200. Anything else indicates a serious processing problem.
-				throw new ApplicationException($"Unexpected status code {hrm.StatusCode} from {hrm.RequestMessage?.Method} {hrm.RequestMessage?.RequestUri}");
+				var ex = new ApplicationException($"Unexpected status code {hrm.StatusCode} from {hrm.RequestMessage?.Method} {hrm.RequestMessage?.RequestUri}");
+				// Give the caller the body so at least they have a change of
+				// debugging and discovering a clue to the unexpected failure.
+				ex.Data.Add("body", body);
+				throw ex;
 			}
-			string body = await hrm.Content.ReadAsStringAsync();
 			var wrap = JsonSerializer.Deserialize<ResponseWrap<T>>(body, JsonOpts)!;
 			if (wrap.HasError && throwOnError)
 			{

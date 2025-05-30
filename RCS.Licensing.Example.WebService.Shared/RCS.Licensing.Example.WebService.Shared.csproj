@@ -34,7 +34,7 @@
 
   <ItemGroup>
     <PackageReference Include="RCS.Azure.StorageAccount.Shared" Version="2.0.4" />
-    <PackageReference Include="RCS.Licensing.Provider.Shared" Version="8.1.13" />
+    <PackageReference Include="RCS.Licensing.Provider.Shared" Version="8.1.14" />
     <PackageReference Include="System.Text.Json" Version="8.0.5" />
     <PackageReference Include="TSAPI.Public" Version="1.0.18" />
   </ItemGroup>

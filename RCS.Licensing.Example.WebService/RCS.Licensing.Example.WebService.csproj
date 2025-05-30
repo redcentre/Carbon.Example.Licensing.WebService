@@ -44,7 +44,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.5" />
     <PackageReference Include="RCS.Azure.StorageAccount" Version="2.0.4" />
-    <PackageReference Include="RCS.Licensing.Example.Provider" Version="9.2.0" />
+    <PackageReference Include="RCS.Licensing.Example.Provider" Version="9.2.1" />
     <PackageReference Include="SendGrid" Version="9.29.3" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.9.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="6.9.0" />

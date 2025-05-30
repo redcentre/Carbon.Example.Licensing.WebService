@@ -1,12 +1,12 @@
 namespace RCS.Licensing.Example.WebService.Shared
 {
-	public sealed class LoginNameRequest
+	public sealed class AuthenticateNameRequest
 	{
-		public LoginNameRequest()
+		public AuthenticateNameRequest()
 		{
 		}
 
-		public LoginNameRequest(string userName, string password, bool skipCache = false)
+		public AuthenticateNameRequest(string userName, string password, bool skipCache = false)
 		{
 			UserName = userName;
 			Password = password;

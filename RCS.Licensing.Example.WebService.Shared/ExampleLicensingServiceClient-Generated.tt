@@ -181,12 +181,12 @@ namespace RCS.Licensing.Example.WebService.Shared
 	}
 	void EmitReturn(AppMethod am)
 	{
-		if (am.Client.InterceptResult)
+		if (am.Client.InterceptName != null)
 		{
 #>
-			var result = await UnwrapAndCheckResult<<#=am.ResponseType#>>(hrm, throwOnError);
-			Intercept<#=am.Name#>(result);
-			return result;
+			var wrap = await UnwrapAndCheckResult<<#=am.ResponseType#>>(hrm, throwOnError);
+			<#=am.Client.InterceptName#>(wrap.Data);
+			return wrap;
 <#+
 		}
 		else

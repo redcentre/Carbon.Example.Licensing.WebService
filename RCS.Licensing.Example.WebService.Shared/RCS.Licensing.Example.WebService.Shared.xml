@@ -122,6 +122,17 @@
       and remove the request header.
     </remarks>
         </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.GetFreeLicence(System.String,System.Boolean)">
+            <summary>
+              Get a free licence that can be used for evaluations and trial periods.
+            </summary>
+            <remarks>
+              This endpoint requires that the licensing database contain a valid account with 
+              the name 'guest'. Hosts of the licensing service may choose to optionally 
+              implement the guest account.
+            </remarks>
+            <param name="clientIdentifier">Client caller identifier (usually an email address).</param>
+        </member>
         <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.GetServiceInfo">
             <summary>
               Gets service metadata information.
@@ -645,9 +656,17 @@
         </member>
         <member name="P:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.Licence">
             <summary>
-            Contains a reference to the account information return by a successful login.
-            The property value is set to null by a logout call.
+            Contains the licensing information returned by the last successful authentication call.
+            The property is set automatically by the authentication call so there is no need for the
+            client to manually set this property.
             </summary>
+        </member>
+        <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.InspectLicence(RCS.Licensing.Provider.Shared.LicenceFull)">
+            <summary>
+            Only the three authentication methods need some special handling to get the LicenceFull
+            coming back from the licensing provider into a smaller LicenceInfo class
+            </summary>
+            <param name="licence"></param>
         </member>
         <member name="T:RCS.Licensing.Example.WebService.Shared.MockResponse">
             <summary>

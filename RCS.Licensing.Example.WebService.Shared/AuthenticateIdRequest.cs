@@ -1,12 +1,12 @@
 namespace RCS.Licensing.Example.WebService.Shared
 {
-	public sealed class LoginIdRequest
+	public sealed class AuthenticateIdRequest
 	{
-		public LoginIdRequest()
+		public AuthenticateIdRequest()
 		{
 		}
 
-		public LoginIdRequest(string userId, string password, bool skipCache = false)
+		public AuthenticateIdRequest(string userId, string password, bool skipCache = false)
 		{
 			UserId = userId;
 			Password = password;

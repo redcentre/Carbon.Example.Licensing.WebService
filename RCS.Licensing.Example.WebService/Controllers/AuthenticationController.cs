@@ -7,6 +7,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RCS.Licensing.Provider.Shared;
 using RCS.LicensingV2.WebApi;
+using System;
+using RCS.Licensing.Example.Provider;
 
 namespace RCS.Licensing.Example.WebService.Controllers;
 
@@ -23,18 +25,46 @@ public partial class AuthenticationController : LicensingControllerBase
 	{
 	}
 
-	async Task<ResponseWrap<LicenceFull>> InnerAuthenticateName(LoginNameRequest request)
+	async Task<ResponseWrap<LicenceFull>> InnerAuthenticateName(AuthenticateNameRequest request, bool canThrow)
 	{
-		var licfull = await Licprov.AuthenticateName(request.UserName, request.Password, request.SkipCache);
-		EnrichLicence(licfull);
-		return new ResponseWrap<LicenceFull>(licfull);
+		try
+		{
+			var licfull = await Licprov.AuthenticateName(request.UserName, request.Password, request.SkipCache);
+			EnrichLicence(licfull);
+			return new ResponseWrap<LicenceFull>(licfull);
+		}
+		catch (ExampleLicensingException ex)
+		{
+			return new ResponseWrap<LicenceFull>((int)ex.ErrorType, ex.Message);
+		}
 	}
 
-	async Task<ResponseWrap<LicenceFull>> InnerAuthenticateId(LoginIdRequest request)
+	async Task<ResponseWrap<LicenceFull>> InnerAuthenticateId(AuthenticateIdRequest request, bool canThrow)
 	{
-		var licfull = await Licprov.AuthenticateId(request.UserId, request.Password, request.SkipCache);
-		EnrichLicence(licfull);
-		return new ResponseWrap<LicenceFull>(licfull);
+		try
+		{
+			var licfull = await Licprov.AuthenticateId(request.UserId, request.Password, request.SkipCache);
+			EnrichLicence(licfull);
+			return new ResponseWrap<LicenceFull>(licfull);
+		}
+		catch (ExampleLicensingException ex)
+		{
+			return new ResponseWrap<LicenceFull>((int)ex.ErrorType, ex.Message);
+		}
+	}
+
+	async Task<ResponseWrap<LicenceFull>> InnerGetFreeLicence(FreeLicenceRequest request, bool canThrow)
+	{
+		try
+		{
+			var licfull = await Licprov.GetFreeLicence(request.ClientIdentifier, request.SkipCache);
+			EnrichLicence(licfull);
+			return new ResponseWrap<LicenceFull>(licfull);
+		}
+		catch (ExampleLicensingException ex)
+		{
+			return new ResponseWrap<LicenceFull>((int)ex.ErrorType, ex.Message);
+		}
 	}
 
 	/// <summary>

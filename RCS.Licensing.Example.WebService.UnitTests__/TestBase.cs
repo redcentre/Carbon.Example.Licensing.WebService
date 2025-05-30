@@ -74,6 +74,29 @@ public class TestBase
 		}
 	}
 
+	protected void DumpLic(LicenceInfo? lic)
+	{
+		if (lic == null)
+		{
+			Trace("NULL");
+			return;
+		}
+		Trace($"Id ............ {lic.Id}");
+		Trace($"Name .......... {lic.Name}");
+		Trace($"Email ......... {lic.Email}");
+		Trace($"Roles ......... {Join(lic.Roles)}");
+		Trace($"Realms ........ {Join(lic.Realms.Select(r => $"({r.Id},{r.Name})"))}");
+		foreach (var cust in lic.Customers)
+		{
+			Trace($"|  {cust.Id} {cust.Name} {cust.DisplayName}");
+			foreach (var job in cust.Jobs)
+			{
+				string vtjoin = Join(job.VartreeNames);
+				Trace($"|  |  {job.Id} {job.Name} {job.DisplayName} {vtjoin}");
+			}
+		}
+	}
+
 	protected void Trace(string message)
 	{
 		TestContext.WriteLine(message);
@@ -81,7 +104,7 @@ public class TestBase
 
 	protected static string Join(IEnumerable<object> list) => list == null ? "NULL" : "[" + string.Join(",", list) + "]";
 
-	protected void DumpObject(object? value)
+	protected void DumpObject(object value)
 	{
 		if (value == null)
 		{

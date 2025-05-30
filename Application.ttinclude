@@ -12,16 +12,16 @@ public sealed class App
 			mlist.Add(am);
 			am.Name = (string)melem.Attribute("name");
 			am.ResponseType = (string)melem.Attribute("responseType");
-			am.IsSimple = (bool?)melem.Attribute("simple") ?? false;
 			am.Obsolete = (string)melem.Attribute("obsolete");
 			am.SkipClient = (bool?)melem.Attribute("skipClient") ?? false;
-			am.IsAsync = (bool?)melem.Attribute("simple") ?? true;		// NOTE: DOESN'T SEEM TO BE USED IN ANY TEMPLATE
 			am.NonProvider = (bool?)melem.Attribute("nonProvider") ?? false;
 			am.IgnoreApi = (bool?)melem.Attribute("ignoreApi") ?? false;
+			am.CanThrow = (bool?)melem.Attribute("canThrow") ?? false;
 			var welem = melem.Element("web");
 			if (welem != null)
 			{
 				am.Web = new AppWeb();
+				am.Web.Parent = am;
 				am.Web.Controller = (string)welem.Attribute("controller");
 				am.Web.Summary = (string)welem.Element("summary");
 				am.Web.Remarks = (string)welem.Element("remarks");
@@ -64,7 +64,7 @@ public sealed class App
 			{
 				am.Client = new AppClient();
 				am.Client.ParamsToWebRequest = (bool?)celem.Attribute("paramsToWebRequest") ?? false;
-				am.Client.InterceptResult = (bool?)celem.Attribute("interceptResult") ?? false;
+				am.Client.InterceptName = (string)celem.Attribute("interceptName");
 				am.Client.Name = (string)celem.Attribute("name");
 				am.Client.Summary = (string)celem.Element("summary");
 				am.Client.Remarks = (string)celem.Element("remarks");
@@ -98,12 +98,11 @@ public sealed class AppMethod
 {
 	public string Name { get; set; }
 	public string ResponseType { get; set; }
-	public bool IsSimple { get; set; }
 	public string Obsolete { get; set; }
 	public bool SkipClient { get; set; }
-	public bool IsAsync { get; set; }
 	public bool NonProvider { get; set; }
 	public bool IgnoreApi { get; set; }
+	public bool CanThrow { get; set; }
 	public AppWeb Web { get; set; }
 	public Code[] Codes { get; set; }
 	public AppClient Client { get; set; }
@@ -116,6 +115,7 @@ public sealed class Code
 }
 public sealed class AppWeb
 {
+	public AppMethod Parent { get; set; }
 	public string Controller { get; set; }
 	public string RoutePrefix => Regex.Match(Controller, "(.+)Controller").Groups[1].Value.ToLower();
 	public string Summary { get; set; }
@@ -126,7 +126,20 @@ public sealed class AppWeb
 	public bool RequiresSession { get; set; }
 	public bool RequiresKey { get; set; }
 	public TParam[] Params { get; set; }
-	public string ParamNameJoin => Params == null ? string.Empty : string.Join(", ", Params.Select(p => p.Name));
+	public string ParamNameJoin
+	{
+		get
+		{
+			string join = Params == null ? string.Empty : string.Join(", ", Params.Select(p => p.Name));
+			if (Parent.CanThrow)
+			{
+				if (join.Length == 0) join = ", true /* Can Throw */";
+				else join = $"{join}, true /* Can Throw */";
+			}
+			return join;
+			//=> Params == null ? string.Empty : string.Join(", ", Params.Select(p => p.Name));
+		}
+	}
 	public string ParamPairJoin => Params == null ? string.Empty : string.Join(", ", Params.Select(p => $"{p.Type} {p.Name}"));
 	public string ParamFullJoin => Params == null ? string.Empty : string.Join(", ", Params.Select(p => (p.From == null ? "" : $"[{p.From}] ") + $"{p.Type} {p.Name}"));
 	public WebResponse[] Responses { get; set; }
@@ -148,7 +161,7 @@ public sealed class WebResponse
 public sealed class AppClient
 {
 	public bool ParamsToWebRequest { get; set; }
-	public bool InterceptResult { get; set; }
+	public string InterceptName { get; set; }
 	public string Name { get; set; }
 	public string Summary { get; set; }
 	public string Remarks { get; set; }

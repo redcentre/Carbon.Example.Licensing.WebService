@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using RCS.Azure.StorageAccount.Shared;
 using RCS.Licensing.Provider.Shared;
 using RCS.Licensing.Provider.Shared.Entities;
+using RCS.Licensing.Example.Provider;
 
 namespace RCS.Licensing.Example.WebService.Controllers;
 
@@ -82,29 +83,50 @@ public partial class CustomerController : LicensingControllerBase
 		return new ResponseWrap<Customer[]>(customers);
 	}
 
-	async Task<ResponseWrap<Customer?>> InnerDisconnectCustomerChildJob(string jobId, string customerId)
+	async Task<ResponseWrap<Customer?>> InnerDisconnectCustomerChildJob(string jobId, string customerId, bool canThrow)
 	{
-		var customer = await Licprov.DisconnectCustomerChildJob(jobId, customerId);
-		Info($"DisconnectJobCustomers {jobId} from {customerId} -> {customer}");
-		return new ResponseWrap<Customer?>(customer!);
+		try
+		{
+			var customer = await Licprov.DisconnectCustomerChildJob(jobId, customerId);
+			Info($"DisconnectJobCustomers {jobId} from {customerId} -> {customer}");
+			return new ResponseWrap<Customer?>(customer!);
+		}
+		catch (ExampleLicensingException ex)
+		{
+			return new ResponseWrap<Customer?>((int)ex.ErrorType, ex.Message);
+		}
 	}
 
-	async Task<ResponseWrap<Customer?>> InnerConnectCustomerChildJobs(JoinsRequest request)
+	async Task<ResponseWrap<Customer?>> InnerConnectCustomerChildJobs(JoinsRequest request, bool canThrow)
 	{
-		var cust = await Licprov.ConnectCustomerChildJobs(request.ParentId, request.ChildIds);
-		if (cust == null) return new ResponseWrap<Customer?>(1, "Not found");
-		string ujoin = string.Join(",", request.ChildIds);
-		Info($"ConnectCustomerChildJobs {request.ParentId} to [{ujoin}]) -> {cust}");
-		return new ResponseWrap<Customer?>(cust);
+		try
+		{
+			var cust = await Licprov.ConnectCustomerChildJobs(request.ParentId, request.ChildIds);
+			if (cust == null) return new ResponseWrap<Customer?>(1, "Not found");
+			string ujoin = string.Join(",", request.ChildIds);
+			Info($"ConnectCustomerChildJobs {request.ParentId} to [{ujoin}]) -> {cust}");
+			return new ResponseWrap<Customer?>(cust);
+		}
+		catch (ExampleLicensingException ex)
+		{
+			return new ResponseWrap<Customer?>((int)ex.ErrorType, ex.Message);
+		}
 	}
 
-	async Task<ResponseWrap<Customer?>> InnerReplaceCustomerChildJobs(JoinsRequest request)
+	async Task<ResponseWrap<Customer?>> InnerReplaceCustomerChildJobs(JoinsRequest request, bool canThrow)
 	{
-		var cust = await Licprov.ReplaceCustomerChildJobs(request.ParentId, request.ChildIds);
-		if (cust == null) return new ResponseWrap<Customer?>(1, "Not found");
-		string rjoin = string.Join(",", request.ChildIds);
-		Info($"SetCustomerJobJoins {request.ParentId} to [{rjoin}]) -> {cust}");
-		return new ResponseWrap<Customer?>(cust!);
+		try
+		{
+			var cust = await Licprov.ReplaceCustomerChildJobs(request.ParentId, request.ChildIds);
+			if (cust == null) return new ResponseWrap<Customer?>(1, "Not found");
+			string rjoin = string.Join(",", request.ChildIds);
+			Info($"SetCustomerJobJoins {request.ParentId} to [{rjoin}]) -> {cust}");
+			return new ResponseWrap<Customer?>(cust!);
+		}
+		catch (ExampleLicensingException ex)
+		{
+			return new ResponseWrap<Customer?>((int)ex.ErrorType, ex.Message);
+		}
 	}
 
 	async Task<ResponseWrap<Customer?>> InnerDisconnectCustomerChildUser(string customerId, string userId)

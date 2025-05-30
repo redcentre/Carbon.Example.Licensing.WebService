@@ -3,14 +3,14 @@
 
   <!-- AUTHENTICATION -->
 
-  <method name="AuthenticateName" responseType="LicenceFull" simple="true">
+  <method name="AuthenticateName" responseType="LicenceFull" canThrow="true">
     <web controller="AuthenticationController" route="name" method="Post" anonymous="true">
       <summary>Authenticate licensing system account Name and password credentials.</summary>
       <parameters>
         <parameter from="FromBody" name="request" type="LoginNameRequest"/>
       </parameters>
     </web>
-    <client paramsToWebRequest="true">
+    <client paramsToWebRequest="true" interceptName="InspectLicence">
       <parameters>
         <parameter name="userName" type="string" description="Account user name."/>
         <parameter name="password" type="string"/>
@@ -20,16 +20,20 @@
         <include path="members[@name=&quot;AuthCommon&quot;]/*"/>
       </includes>
     </client>
+    <codes>
+      <code id="2">User name not found.</code>
+      <code id="3">Incorrect password.</code>
+    </codes>
   </method>
 
-  <method name="AuthenticateId" responseType="LicenceFull" simple="true">
+  <method name="AuthenticateId" responseType="LicenceFull" canThrow="true">
     <web controller="AuthenticationController" route="id" method="Post" anonymous="true">
       <summary>Authenticate licensing system account Id and password credential authentication.</summary>
       <parameters>
         <parameter name="request" type="LoginIdRequest" description="A serialized (c)LoginIdRequest(/c) in the request body."/>
       </parameters>
     </web>
-    <client paramsToWebRequest="true">
+    <client paramsToWebRequest="true" interceptName="InspectLicence">
       <parameters>
         <parameter name="userId" type="string" description="Account user Id."/>
         <parameter name="password" type="string"/>
@@ -39,6 +43,30 @@
         <include path="members[@name=&quot;AuthCommon&quot;]/*"/>
       </includes>
     </client>
+    <codes>
+      <code id="1">User Id incorrect format.</code>
+      <code id="2">User Id not found.</code>
+      <code id="3">Incorrect password.</code>
+    </codes>
+  </method>
+
+  <method name="GetFreeLicence" responseType="LicenceFull" canThrow="true">
+    <web controller="AuthenticationController" route="free" method="Post" anonymous="true">
+      <summary>Get a free licence that can be used for evaluations and trial periods.</summary>
+      <remarks>This endpoint requires that the licensing database contain a valid account with the name 'guest'. Hosts of the licensing service may choose to optionally implement the guest account.</remarks>
+      <parameters>
+        <parameter name="request" type="FreeLicenceRequest" description="A serialized (c)FreeLicenceRequest(/c) in the request body."/>
+      </parameters>
+    </web>
+    <client paramsToWebRequest="true" interceptName="InspectLicence">
+      <parameters>
+        <parameter name="clientIdentifier" type="string" description="Client caller identifier (usually an email address)."/>
+        <parameter name="skipCache" type="bool" default="false"/>
+      </parameters>
+    </client>
+    <codes>
+      <code id="2">Guest account not found.</code>
+    </codes>
   </method>
 
   <!-- SERVICE -->
@@ -75,7 +103,7 @@
     </client>
   </method>
 
-  <method name="GetNavigationData" responseType="NavData" simple="true">
+  <method name="GetNavigationData" responseType="NavData">
     <web controller="ProviderController" route="navdata" method="Get" requiresKey="true">
       <summary>Gets the navigation tree.</summary>
       <remarks>Client applications can use the returned values to build custom navigation collections.</remarks>
@@ -84,7 +112,7 @@
     </client>
   </method>
 
-  <method name="GetDatabaseReport" responseType="ReportItem[]" simple="true">
+  <method name="GetDatabaseReport" responseType="ReportItem[]">
     <web controller="ProviderController" route="dbreport" method="Get" requiresKey="true">
       <summary>Gets the database report.</summary>
       <remarks>Client applications can use the returned items to build custom reports.</remarks>
@@ -95,7 +123,7 @@
 
   <!-- REALM -->
 
-  <method name="ReadRealm" responseType="Realm?" simple="true">
+  <method name="ReadRealm" responseType="Realm?">
     <web controller="RealmController" route="read/{id}" method="Get" requiresKey="true">
       <summary>Reads a realm by Id.</summary>
       <remarks>
@@ -112,7 +140,7 @@
     </client>
   </method>
 
-  <method name="ListRealms" responseType="Realm[]" simple="true">
+  <method name="ListRealms" responseType="Realm[]">
     <web controller="RealmController" route="list" method="Get" requiresKey="true">
       <summary>Lists all realms.</summary>
     </web>
@@ -120,7 +148,7 @@
     </client>
   </method>
 
-  <method name="UpsertRealm" responseType="UpsertResult&lt;Realm&gt;" simple="true">
+  <method name="UpsertRealm" responseType="UpsertResult&lt;Realm&gt;">
     <web controller="RealmController" route="" method="Put" requiresKey="true">
       <summary>Updates or inserts a customer.</summary>
       <remarks>If the (c)Id(/c) property is null then a new realm record is created, otherwise an existing realm with the Id is updated. The following properties are ignored: (c)Created(/c), (c)Customers(/c), (c)Users(/c).</remarks>
@@ -135,7 +163,7 @@
     </client>
   </method>
 
-  <method name="ValidateRealm" responseType="string[]?" simple="true">
+  <method name="ValidateRealm" responseType="string[]?">
     <web controller="RealmController" route="validate/{realmId}" method="Get" requiresKey="true">
       <summary>Validates the properties of a realm.</summary>
       <parameters>
@@ -149,7 +177,7 @@
     </client>
   </method>
 
-  <method name="DeleteRealm" responseType="int" simple="true">
+  <method name="DeleteRealm" responseType="int">
     <web controller="RealmController" route="{id}" method="Delete" requiresKey="true">
       <summary>Deletes a realm by Id.</summary>
       <remarks>The response integer is the number of licensing database rows affected by delete processing. Zero indicates that the realm was not found.</remarks>
@@ -164,7 +192,7 @@
     </client>
   </method>
 
-  <method name="DisconnectRealmChildCustomer" responseType="Realm?" simple="true">
+  <method name="DisconnectRealmChildCustomer" responseType="Realm?">
     <web controller="RealmController" route="disconnect/{realmId}/customer/{customerId}" method="Get" requiresKey="true">
       <summary>Disconnect a realm from a customer.</summary>
       <parameters>
@@ -180,7 +208,7 @@
     </client>
   </method>
 
-  <method name="ConnectRealmChildCustomers" responseType="Realm?" simple="true">
+  <method name="ConnectRealmChildCustomers" responseType="Realm?">
     <web controller="RealmController" route="connect/customers" method="Post" requiresKey="true">
       <summary>Connects a realm to customers.</summary>
       <parameters>
@@ -195,7 +223,7 @@
     </client>
   </method>
 
-  <method name="ReplaceRealmChildCustomers" responseType="Realm?" simple="true">
+  <method name="ReplaceRealmChildCustomers" responseType="Realm?">
     <web controller="RealmController" route="replace/customers" method="Post" requiresKey="true">
       <summary>Replaces the joins between a realm and customers.</summary>
       <parameters>
@@ -210,7 +238,7 @@
     </client>
   </method>
 
-  <method name="DisconnectRealmChildUser" responseType="Realm?" simple="true">
+  <method name="DisconnectRealmChildUser" responseType="Realm?">
     <web controller="RealmController" route="disconnect/{realmId}/user/{userId}" method="Get" requiresKey="true">
       <summary>Disconnect a realm from a user.</summary>
       <parameters>
@@ -226,7 +254,7 @@
     </client>
   </method>
 
-  <method name="ConnectRealmChildUsers" responseType="Realm?" simple="true">
+  <method name="ConnectRealmChildUsers" responseType="Realm?">
     <web controller="RealmController" route="connect/users" method="Post" requiresKey="true">
       <summary>Connects a realm to users.</summary>
       <parameters>
@@ -241,7 +269,7 @@
     </client>
   </method>
 
-  <method name="ReplaceRealmChildUsers" responseType="Realm?" simple="true">
+  <method name="ReplaceRealmChildUsers" responseType="Realm?">
     <web controller="RealmController" route="replace/users" method="Post" requiresKey="true">
       <summary>Replaces the joins between a realm and users.</summary>
       <parameters>
@@ -258,7 +286,7 @@
 
   <!-- CUSTOMER -->
 
-  <method name="ListCustomers" responseType="Customer[]" simple="true">
+  <method name="ListCustomers" responseType="Customer[]">
     <web controller="CustomerController" route="list" method="Get" requiresKey="true">
       <summary>Lists all customers.</summary>
     </web>
@@ -266,7 +294,7 @@
     </client>
   </method>
 
-  <method name="ListCustomers" responseType="Customer[]" simple="true">
+  <method name="ListCustomers" responseType="Customer[]">
     <web controller="CustomerController" route="list" method="Post" requiresKey="true">
       <summary>Gets a summary list of customers filtered by realm.</summary>
       <parameters>
@@ -295,7 +323,7 @@
     </client>
   </method>
 
-  <method name="UpsertCustomer" responseType="UpsertResult&lt;Customer&gt;" simple="true">
+  <method name="UpsertCustomer" responseType="UpsertResult&lt;Customer&gt;">
     <web controller="CustomerController" route="" method="Put" requiresKey="true">
       <summary>Updates or inserts a customer.</summary>
       <remarks>If the (c)Id(/c) property is null then a new customer record is created, otherwise an existing customer with the Id is updated. The following properties are ignored: (c)Jobs(/c), (c)Realms(/c), (c)Users(/c).</remarks>
@@ -310,7 +338,7 @@
     </client>
   </method>
 
-  <method name="ValidateCustomer" responseType="string[]" simple="true">
+  <method name="ValidateCustomer" responseType="string[]">
     <web controller="CustomerController" route="validate/{id}" method="Get" requiresKey="true">
       <parameters>
         <parameter from="FromRoute" name="id" type="string" description="The Id of the customer to validate."/>
@@ -323,7 +351,7 @@
     </client>
   </method>
 
-  <method name="DeleteCustomer" responseType="int" simple="true">
+  <method name="DeleteCustomer" responseType="int">
     <web controller="CustomerController" route="{id}" method="Delete" requiresKey="true">
       <summary>Deletes a customer by Id.</summary>
       <remarks>The response integer is the number of licensing database rows affected by delete processing. Zero indicates that the customer was not found.</remarks>
@@ -338,7 +366,7 @@
     </client>
   </method>
 
-  <method name="ReadCustomer" responseType="Customer?" simple="true">
+  <method name="ReadCustomer" responseType="Customer?">
     <web controller="CustomerController" route="read/{id}" method="Get" requiresKey="true">
       <summary>Reads a customer by Id.</summary>
       <remarks>
@@ -358,7 +386,7 @@
     </codes>
   </method>
 
-  <method name="ReadCustomersByName" responseType="Customer[]" simple="true">
+  <method name="ReadCustomersByName" responseType="Customer[]">
     <web controller="CustomerController" route="read/name/{name}" method="Get" requiresKey="true">
       <summary>Reads customers by Name.</summary>
       <parameters>
@@ -372,7 +400,7 @@
     </client>
   </method>
 
-  <method name="DisconnectCustomerChildJob" responseType="Customer?" simple="true">
+  <method name="DisconnectCustomerChildJob" responseType="Customer?" canThrow="true">
     <web controller="CustomerController" route="disconnect/{customerId}/job/{jobId}" method="Get" requiresKey="true">
       <summary>Disconnect a customer from a job.</summary>
       <parameters>
@@ -388,7 +416,7 @@
     </client>
   </method>
 
-  <method name="ConnectCustomerChildJobs" responseType="Customer?" simple="true">
+  <method name="ConnectCustomerChildJobs" responseType="Customer?" canThrow="true">
     <web controller="CustomerController" route="connect/jobs" method="Post" requiresKey="true">
       <summary>Connect a customer to jobs.</summary>
       <parameters>
@@ -406,7 +434,7 @@
     </codes>
   </method>
 
-  <method name="ReplaceCustomerChildJobs" responseType="Customer?" simple="true">
+  <method name="ReplaceCustomerChildJobs" responseType="Customer?" canThrow="true">
     <web controller="CustomerController" route="replace/jobs" method="Post" requiresKey="true">
       <summary>Replaces the full set of customer jobs relations.</summary>
       <parameters>
@@ -424,7 +452,7 @@
     </codes>
   </method>
 
-  <method name="DisconnectCustomerChildUser" responseType="Customer?" simple="true">
+  <method name="DisconnectCustomerChildUser" responseType="Customer?">
     <web controller="CustomerController" route="disconnect/{customerId}/user/{userId}" method="Get" requiresKey="true">
       <summary>Disconnect a customer from a user.</summary>
       <parameters>
@@ -443,7 +471,7 @@
     </codes>
   </method>
 
-  <method name="ConnectCustomerChildUsers" responseType="Customer?" simple="true">
+  <method name="ConnectCustomerChildUsers" responseType="Customer?">
     <web controller="CustomerController" route="connect/users" method="Post" requiresKey="true">
       <summary>Connect a customer to users.</summary>
       <parameters>
@@ -458,7 +486,7 @@
     </client>
   </method>
 
-  <method name="ReplaceCustomerChildUsers" responseType="Customer?" simple="true">
+  <method name="ReplaceCustomerChildUsers" responseType="Customer?">
     <web controller="CustomerController" route="replace/users" method="Post" requiresKey="true">
       <summary>Replaces the full set of customer to user connections.</summary>
       <parameters>
@@ -476,7 +504,7 @@
     </codes>
   </method>
 
-  <method name="ListStorageAccounts" responseType="SubscriptionAccount[]" simple="true">
+  <method name="ListStorageAccounts" responseType="SubscriptionAccount[]">
     <web controller="CustomerController" route="azure/storage/list" method="Get" requiresKey="true">
       <summary>Lists all Storage Accounts in the Azure Subscription associated with this web sersvice.</summary>
     </web>
@@ -484,7 +512,7 @@
     </client>
   </method>
 
-  <method name="IsStorageAccountNameAvailable" responseType="bool?" simple="true">
+  <method name="IsStorageAccountNameAvailable" responseType="bool?">
     <web controller="CustomerController" route="azure/storage/available/{name}" method="Get" requiresKey="true">
       <summary>Checks if a Storage Account name is globally available.</summary>
       <parameters>
@@ -498,7 +526,7 @@
     </client>
   </method>
 
-  <method name="CreateStorageAccount" responseType="SubscriptionAccount?" simple="true">
+  <method name="CreateStorageAccount" responseType="SubscriptionAccount?">
     <web controller="CustomerController" route="azure/storage" method="Post" requiresKey="true">
       <summary>Creates a Storage Account.</summary>
       <parameters>
@@ -517,7 +545,7 @@
 
   <!-- JOB -->
 
-  <method name="ReadJob" responseType="Job?" simple="true">
+  <method name="ReadJob" responseType="Job?">
     <web controller="JobController" route="read/{id}" method="Get" requiresKey="true">
       <summary>Reads a job by Id.</summary>
       <remarks>
@@ -534,7 +562,7 @@
     </client>
   </method>
 
-  <method name="ListJobs" responseType="Job[]" simple="true">
+  <method name="ListJobs" responseType="Job[]">
     <web controller="JobController" route="list" method="Get" requiresKey="true">
       <summary>Lists all jobs.</summary>
     </web>
@@ -542,7 +570,7 @@
     </client>
   </method>
 
-  <method name="UpsertJob" responseType="UpsertResult&lt;Job&gt;" simple="true">
+  <method name="UpsertJob" responseType="UpsertResult&lt;Job&gt;">
     <web controller="JobController" route="" method="Put" requiresKey="true">
       <summary>Updates or inserts a job.</summary>
       <remarks>If the (c)Id(/c) property is null then a new job record is created, otherwise an existing job with the Id is updated. The following properties are ignored: (c)Created(/c), (c)Users(/c).</remarks>
@@ -557,7 +585,7 @@
     </client>
   </method>
 
-  <method name="ValidateJob" responseType="string[]" simple="true">
+  <method name="ValidateJob" responseType="string[]">
     <web controller="JobController" route="validate/{id}" method="Get" requiresKey="true">
       <parameters>
         <parameter from="FromRoute" name="id" type="string" description="The Id of the job to validate."/>
@@ -570,7 +598,7 @@
     </client>
   </method>
 
-  <method name="DeleteJob" responseType="int" simple="true">
+  <method name="DeleteJob" responseType="int">
     <web controller="JobController" route="{id}" method="Delete" requiresKey="true">
       <summary>Deletes a job by Id.</summary>
       <remarks>The response integer is the number of licensing database rows affected by delete processing. Zero indicates that the job was not found.</remarks>
@@ -585,7 +613,7 @@
     </client>
   </method>
 
-  <method name="DisconnectJobChildUser" responseType="Job?" simple="true">
+  <method name="DisconnectJobChildUser" responseType="Job?">
     <web controller="JobController" route="disconnect/{jobId}/user/{userId}" method="Get" requiresKey="true">
       <summary>Disconnect a job from a user.</summary>
       <parameters>
@@ -601,7 +629,7 @@
     </client>
   </method>
 
-  <method name="ConnectJobChildUsers" responseType="Job?" simple="true">
+  <method name="ConnectJobChildUsers" responseType="Job?">
     <web controller="JobController" route="connect/users" method="Post" requiresKey="true">
       <summary>Connect a job to users.</summary>
       <parameters>
@@ -616,7 +644,7 @@
     </client>
   </method>
 
-  <method name="ReplaceJobChildUsers" responseType="Job?" simple="true">
+  <method name="ReplaceJobChildUsers" responseType="Job?">
     <web controller="JobController" route="replace/users" method="Post" requiresKey="true">
       <summary>Replaces the full set of job to user connections.</summary>
       <parameters>
@@ -640,7 +668,7 @@
     </client>
   </method>
 
-  <method name="CreateJobContainer" responseType="bool" simple="true">
+  <method name="CreateJobContainer" responseType="bool">
     <web controller="JobController" route="azure/container" method="Post" requiresKey="true">
       <summary>Creates a Job Container.</summary>
       <remarks>Creates an Azure container with a name corresponding to an existing licensing job and sets the public access level to Blobs. The container is created in the Storage Account that corresponds to the job's parent customer.</remarks>
@@ -680,7 +708,7 @@
     </client>
   </method>
 
-  <method name="ReadUser" responseType="User?" simple="true">
+  <method name="ReadUser" responseType="User?">
     <web controller="UserController" route="read/{id}" method="Get" requiresKey="true">
       <summary>Reads a user by Id.</summary>
       <remarks>
@@ -697,7 +725,7 @@
     </client>
   </method>
 
-  <method name="ListUsers" responseType="User[]" simple="true">
+  <method name="ListUsers" responseType="User[]">
     <web controller="UserController" route="list" method="Get" requiresKey="true">
       <summary>Lists all users.</summary>
     </web>
@@ -706,7 +734,7 @@
     </client>
   </method>
 
-  <method name="ListUsers" responseType="User[]" simple="true">
+  <method name="ListUsers" responseType="User[]">
     <web controller="UserController" route="list" method="Post" requiresKey="true">
       <summary>Lists all users optionally filtered by realm Ids.</summary>
       <parameters>
@@ -735,7 +763,7 @@
     </client>
   </method>
 
-  <method name="UpsertUser" responseType="UpsertResult&lt;User&gt;" simple="true">
+  <method name="UpsertUser" responseType="UpsertResult&lt;User&gt;">
     <web controller="UserController" route="" method="Put" requiresKey="true">
       <summary>Update a user.</summary>
       <remarks>The (c)Id(/c) primary key property identifies the User record to be updated. These properties are ignored because they are internally generated by new user processing: (c)Created(/c), (c)PassHash(/c), (c)Uid(/c), (c)Customers(/c), (c)Jobs(/c), (c)Realms(/c). All other property values are updated in the user record.</remarks>
@@ -750,7 +778,7 @@
     </client>
   </method>
 
-  <method name="DeleteUser" responseType="int" simple="true">
+  <method name="DeleteUser" responseType="int">
     <web controller="UserController" route="{id}" method="Delete" requiresKey="true">
       <summary>Deletes a user by Id.</summary>
       <remarks>The response integer is the number of licensing database rows affected by delete processing. Zero indicates that the user was not found.</remarks>
@@ -765,7 +793,7 @@
     </client>
   </method>
 
-  <method name="DisconnectUserChildCustomer" responseType="User?" simple="true">
+  <method name="DisconnectUserChildCustomer" responseType="User?">
     <web controller="UserController" route="disconnect/{userId}/customer/{customerId}" method="Get" requiresKey="true">
       <summary>Disconnect a user from a customer.</summary>
       <parameters>
@@ -781,7 +809,7 @@
     </client>
   </method>
 
-  <method name="ConnectUserChildCustomers" responseType="User?" simple="true">
+  <method name="ConnectUserChildCustomers" responseType="User?">
     <web controller="UserController" route="connect/customers" method="Post" requiresKey="true">
       <summary>Connects a user to customers.</summary>
       <parameters>
@@ -796,7 +824,7 @@
     </client>
   </method>
 
-  <method name="ReplaceUserChildCustomers" responseType="User?" simple="true">
+  <method name="ReplaceUserChildCustomers" responseType="User?">
     <web controller="UserController" route="replace/customers" method="Post" requiresKey="true">
       <summary>Replaces user and customer joins.</summary>
       <parameters>
@@ -811,7 +839,7 @@
     </client>
   </method>
 
-  <method name="DisconnectUserChildJob" responseType="User?" simple="true">
+  <method name="DisconnectUserChildJob" responseType="User?">
     <web controller="UserController" route="disconnect/{userId}/job/{jobId}" method="Get" requiresKey="true">
       <summary>Disconnect a user from a job.</summary>
       <parameters>
@@ -827,7 +855,7 @@
     </client>
   </method>
 
-  <method name="ConnectUserChildJobs" responseType="User?" simple="true">
+  <method name="ConnectUserChildJobs" responseType="User?">
     <web controller="UserController" route="connect/jobs" method="Post" requiresKey="true">
       <summary>Connects a user to jobs.</summary>
       <parameters>
@@ -842,7 +870,7 @@
     </client>
   </method>
 
-  <method name="ReplaceUserChildJobs" responseType="User?" simple="true">
+  <method name="ReplaceUserChildJobs" responseType="User?">
     <web controller="UserController" route="replace/jobs" method="Post" requiresKey="true">
       <summary>Replaces user and job joins.</summary>
       <parameters>
@@ -857,7 +885,7 @@
     </client>
   </method>
 
-  <method name="DisconnectUserChildRealm" responseType="User?" simple="true">
+  <method name="DisconnectUserChildRealm" responseType="User?">
     <web controller="UserController" route="disconnect/{userId}/realm/{realmId}" method="Get" requiresKey="true">
       <summary>Disconnect a user from a realm.</summary>
       <parameters>
@@ -873,7 +901,7 @@
     </client>
   </method>
 
-  <method name="ConnectUserChildRealms" responseType="User?" simple="true">
+  <method name="ConnectUserChildRealms" responseType="User?">
     <web controller="UserController" route="connect/realms" method="Post" requiresKey="true">
       <summary>connects a user to realms.</summary>
       <parameters>
@@ -888,7 +916,7 @@
     </client>
   </method>
 
-  <method name="ReplaceUserChildRealms" responseType="User?" simple="true">
+  <method name="ReplaceUserChildRealms" responseType="User?">
     <web controller="UserController" route="replace/realms" method="Post" requiresKey="true">
       <summary>Replaces all user to realm connections.</summary>
       <parameters>
@@ -903,7 +931,7 @@
     </client>
   </method>
 
-  <method name="PasswordChange" responseType="int" simple="true" ignoreApi="true">
+  <method name="PasswordChange" responseType="int" ignoreApi="true" canThrow="true">
     <web controller="UserController" route="password/change" method="Post" requiresKey="true">
       <summary>Changes a user's password.</summary>
       <parameters>
@@ -919,7 +947,7 @@
     </client>
   </method>
 
-  <method name="PasswordChangePlea" responseType="string?" simple="true">
+  <method name="PasswordChangePlea" responseType="string?">
     <web controller="UserController" route="plea/password/{userId}" method="Post" requiresKey="true">
       <summary>Sends a change password request through two-factor-authentication.</summary>
       <remarks>
@@ -943,7 +971,7 @@
     </codes>
   </method>
 
-  <method name="GetPlea" responseType="PleaItem?" simple="true">
+  <method name="GetPlea" responseType="PleaItem?">
     <web controller="UserController" route="plea/{id}" method="Get" requiresKey="true">
       <summary>Gets a plea.</summary>
       <remarks>Applications can use this endpoint to retreive a previously registered plea, validate it, then perform whatever processing is required.</remarks>
@@ -958,7 +986,7 @@
     </client>
   </method>
 
-  <method name="UpdateAccount" responseType="int" simple="true">
+  <method name="UpdateAccount" responseType="int" canThrow="true">
     <web controller="UserController" route="account" method="Put" requiresKey="true">
       <summary>Updates specific user account values.</summary>
       <parameters>

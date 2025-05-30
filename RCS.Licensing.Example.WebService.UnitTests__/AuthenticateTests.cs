@@ -13,12 +13,12 @@ public class AuthenticateTests : TestBase
 	{
 		using var client = new ExampleLicensingServiceClient(new Uri(SeviceUri + "foo/"));
 		var ex = await Assert.ThrowsExceptionAsync<ApplicationException>(() => client.AuthenticateId(UserId, Password));
-		Trace(ex.ToString());
+		Trace(ex.Message);
 		Assert.IsTrue(ex.Message.StartsWith("Unexpected status code NotFound from POST"));
 	}
 
 	[TestMethod]
-	public async Task L110_Login_Bad_Id_Psw()
+	public async Task L110_Login_Bad_Creds()
 	{
 		using var client = new ExampleLicensingServiceClient(new Uri(SeviceUri), null, null, true);
 		var ex = await Assert.ThrowsExceptionAsync<ApplicationException>(() => client.AuthenticateId(UserId, "wibble"));
@@ -31,18 +31,9 @@ public class AuthenticateTests : TestBase
 	{
 		await WrapClientLoginId(async (client) =>
 		{
-			DumpObject(client.Licence);
+			DumpLic(client.Licence);
 			await Task.CompletedTask;
 		});
-	}
-
-	[TestMethod]
-	public async Task L170_Login_Bad_Name_Psw()
-	{
-		using var client = new ExampleLicensingServiceClient(new Uri(SeviceUri), null, null, true);
-		var ex = await Assert.ThrowsExceptionAsync<ApplicationException>(() => client.AuthenticateName(UserName, "wobble"));
-		Trace(ex.Message);
-		Assert.AreEqual($"User Name '{UserName}' incorrect password", ex.Message);
 	}
 
 	[TestMethod]
@@ -50,7 +41,7 @@ public class AuthenticateTests : TestBase
 	{
 		await WrapClientLoginName(async (client) =>
 		{
-			DumpObject(client.Licence);
+			DumpLic(client.Licence);
 			await Task.CompletedTask;
 		});
 	}

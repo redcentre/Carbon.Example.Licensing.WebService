@@ -13,6 +13,7 @@ using RCS.Licensing.Provider.Shared;
 using RCS.Licensing.Provider.Shared.Entities;
 using SendGrid;
 using SendGrid.Helpers.Mail;
+using RCS.Licensing.Example.Provider;
 
 namespace RCS.Licensing.Example.WebService.Controllers;
 
@@ -28,11 +29,18 @@ public partial class UserController : LicensingControllerBase
 	{
 	}
 
-	async Task<ResponseWrap<int>> InnerPasswordChange(PasswordChangeRequest request)
+	async Task<ResponseWrap<int>> InnerPasswordChange(PasswordChangeRequest request, bool canThrow)
 	{
-		int count = await Licprov.ChangePassword(request.UserId, request.OldPassword, request.NewPassword);
-		Info($"Change password {request.UserId},{request.OldPassword},{request.NewPassword}) -> {count}");
-		return new ResponseWrap<int>(count);
+		try
+		{
+			int count = await Licprov.ChangePassword(request.UserId, request.OldPassword, request.NewPassword);
+			Info($"Change password {request.UserId},{request.OldPassword},{request.NewPassword}) -> {count}");
+			return new ResponseWrap<int>(count);
+		}
+		catch (ExampleLicensingException ex)
+		{
+			return new ResponseWrap<int>((int)ex.ErrorType, ex.Message);
+		}
 	}
 
 	async Task<ResponseWrap<string?>> InnerPasswordChangePlea(string userId)
@@ -74,7 +82,7 @@ public partial class UserController : LicensingControllerBase
 		var msg = new SendGridMessage()
 		{
 			From = new EmailAddress(twilfrom, twilfromname),
-			Subject = $"Reset password request"
+			Subject = $"Change password request"
 		};
 		using (var http = new HttpClient())
 		{
@@ -108,11 +116,18 @@ public partial class UserController : LicensingControllerBase
 		return new ResponseWrap<PleaItem?>(item);
 	}
 
-	async Task<ResponseWrap<int>> InnerUpdateAccount(UpdateAccountRequest request)
+	async Task<ResponseWrap<int>> InnerUpdateAccount(UpdateAccountRequest request, bool canThrow)
 	{
-		int count = await Licprov.UpdateAccount(request.UserId, request.UserName, request.Comment, request.Email);
-		Info($"Update account {request.UserId},{request.UserName},{request.Comment},{request.Email}) -> {count}");
-		return new ResponseWrap<int>(count);
+		try
+		{
+			int count = await Licprov.UpdateAccount(request.UserId, request.UserName, request.Comment, request.Email);
+			Info($"Update account {request.UserId},{request.UserName},{request.Comment},{request.Email}) -> {count}");
+			return new ResponseWrap<int>(count);
+		}
+		catch (ExampleLicensingException ex)
+		{
+			return new ResponseWrap<int>((int)ex.ErrorType, ex.Message);
+		}
 	}
 
 	async Task<ResponseWrap<UserPick[]>> InnerListUserPicksForRealms(IdFilterRequest request)
