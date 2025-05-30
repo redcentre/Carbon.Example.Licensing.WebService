@@ -5,7 +5,7 @@
     <Nullable>enable</Nullable>
     <PackageIcon>RCS.Licensing.Example.WebService.Shared.png</PackageIcon>
     <Description>Library of classes shared clients and the example web service.</Description>
-    <IsPackable>true</IsPackable>
+    <IsPackable>false</IsPackable>
     <PackageReleaseNotes>Under Construction</PackageReleaseNotes>
     <PackageTags>redcentre</PackageTags>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
