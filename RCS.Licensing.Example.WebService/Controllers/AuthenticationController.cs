@@ -71,9 +71,13 @@ public partial class AuthenticationController : LicensingControllerBase
 	/// </summary>
 	void EnrichLicence(LicenceFull licence)
 	{
-		// The example licensing service does not contact Carbon.
-		// A product key is meaningless.
-		licence.ProductKey = null;
+
+		// ┌───────────────────────────────────────────────────────────────┐
+		// │  The following product key is will be used by clients who     │
+		// │  will use the Carbon engine. This service can't know what     │
+		// │  clients will do, so it passes one back just in case.         │
+		// └───────────────────────────────────────────────────────────────┘
+		licence.ProductKey = Config["LicensingService:ProductKey"];
 		// ┌───────────────────────────────────────────────────────────────┐
 		// │  The signature returned in the authentication response is     │
 		// │  experimental. It contains proof of the Id and time that a    │
