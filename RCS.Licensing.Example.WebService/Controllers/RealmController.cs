@@ -1,10 +1,10 @@
 using System.Net.Mime;
 using System.Threading.Tasks;
-using RCS.Licensing.Example.WebService.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using RCS.Licensing.Example.WebService.Shared;
 using RCS.Licensing.Provider.Shared;
 using RCS.Licensing.Provider.Shared.Entities;
 
@@ -13,6 +13,7 @@ namespace RCS.Licensing.Example.WebService.Controllers;
 [ApiController]
 [Route("realm")]
 [Tags("Realm")]
+[TypeFilter(typeof(StandardActionFilterAttribute))]
 [Produces(MediaTypeNames.Application.Json, MediaTypeNames.Text.Plain)]
 [Consumes(MediaTypeNames.Application.Json, MediaTypeNames.Text.Plain)]
 public partial class RealmController : LicensingControllerBase
@@ -57,7 +58,6 @@ public partial class RealmController : LicensingControllerBase
 	{
 		var realm = await Licprov.DisconnectRealmChildCustomer(realmId, customerId);
 		if (realm == null) return new ResponseWrap<Realm?>(1, "Not found");
-		Info($"DisconnectCustomerRealms {realmId} from {customerId} -> {realm}");
 		return new ResponseWrap<Realm?>(realm!);
 	}
 
@@ -66,7 +66,6 @@ public partial class RealmController : LicensingControllerBase
 		var realm = await Licprov.ConnectRealmChildCustomers(request.ParentId, request.ChildIds);
 		if (realm == null) return new ResponseWrap<Realm?>(1, "Not found");
 		string rjoin = string.Join(",", request.ChildIds);
-		Info($"ReplaceRealmCustomerJoins {request.ParentId} to [{rjoin}]) -> {realm}");
 		return new ResponseWrap<Realm?>(realm!);
 	}
 
@@ -75,7 +74,6 @@ public partial class RealmController : LicensingControllerBase
 		var realm = await Licprov.ReplaceRealmChildCustomers(request.ParentId, request.ChildIds);
 		if (realm == null) return new ResponseWrap<Realm?>(1, "Not found");
 		string rjoin = string.Join(",", request.ChildIds);
-		Info($"ReplaceRealmChildCustomers {request.ParentId} to [{rjoin}]) -> {realm}");
 		return new ResponseWrap<Realm?>(realm!);
 	}
 
@@ -83,7 +81,6 @@ public partial class RealmController : LicensingControllerBase
 	{
 		var realm = await Licprov.DisconnectRealmChildUser(realmId, userId);
 		if (realm == null) return new ResponseWrap<Realm?>(1, "Not found");
-		Info($"DisconnectUserRealms {realmId} from {userId} -> {realm}");
 		return new ResponseWrap<Realm?>(realm!);
 	}
 
@@ -92,7 +89,6 @@ public partial class RealmController : LicensingControllerBase
 		var realm = await Licprov.ConnectRealmChildUsers(request.ParentId, request.ChildIds);
 		if (realm == null) return new ResponseWrap<Realm?>(1, "Not found");
 		string rjoin = string.Join(",", request.ChildIds);
-		Info($"ReplaceRealmUserJoins {request.ParentId} to [{rjoin}]) -> {realm}");
 		return new ResponseWrap<Realm?>(realm!);
 	}
 
@@ -101,7 +97,6 @@ public partial class RealmController : LicensingControllerBase
 		var realm = await Licprov.ReplaceRealmChildUsers(request.ParentId, request.ChildIds);
 		if (realm == null) return new ResponseWrap<Realm?>(1, "Not found");
 		string rjoin = string.Join(",", request.ChildIds);
-		Info($"ReplaceRealmChildUsers {request.ParentId} to [{rjoin}]) -> {realm}");
 		return new ResponseWrap<Realm?>(realm!);
 	}
 }

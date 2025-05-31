@@ -1,10 +1,10 @@
 using System.Net.Mime;
 using System.Threading.Tasks;
-using RCS.Licensing.Example.WebService.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using RCS.Licensing.Example.WebService.Shared;
 using RCS.Licensing.Provider.Shared;
 
 namespace RCS.Licensing.Example.WebService.Controllers;
@@ -12,6 +12,7 @@ namespace RCS.Licensing.Example.WebService.Controllers;
 [ApiController]
 [Route("provider")]
 [Tags("Provider")]
+[TypeFilter(typeof(StandardActionFilterAttribute))]
 [Produces(MediaTypeNames.Application.Json, MediaTypeNames.Text.Plain)]
 [Consumes(MediaTypeNames.Application.Json, MediaTypeNames.Text.Plain)]
 public partial class ProviderController : LicensingControllerBase

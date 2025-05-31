@@ -1,11 +1,12 @@
-using RCS.Licensing.Example.WebService.Shared;
-using RCS.Licensing.Example.WebService.Controllers;
+using System;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RCS.Licensing.Example.Provider;
+using RCS.Licensing.Example.WebService.Controllers;
+using RCS.Licensing.Example.WebService.Shared;
 using RCS.Licensing.Provider.Shared;
 
 namespace RCS.Licensing.Example.WebService;
@@ -33,6 +34,13 @@ public class ErrorController : LicensingControllerBase
 			// Guard against a crazy condition.
 			return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWrap<string?>(901, "The error handler is not available"));
 		}
+		double? secs = null;
+		if (HttpContext.Items.TryGetValue(StandardActionFilterAttribute.StartTimeKey, out object? start))
+		{
+			DateTime startTime = (DateTime)start!;
+			secs = DateTime.Now.Subtract(startTime).TotalSeconds;
+		}
+		Logger.LogError(handler.Error, "{StatusCode} {Method} {Path} {ErrorType} {ErrorMessage} [{Secs:F1}]", HttpContext.Response.StatusCode, HttpContext.Request.Method, HttpContext.Request.Path, handler.Error.GetType().Name, handler.Error.Message, secs);
 		if (handler.Error is ExampleLicensingException elex)
 		{
 			// This is a known application error and returns an OK status but the response body contains a known code and message.

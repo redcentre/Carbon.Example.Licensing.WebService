@@ -89,9 +89,9 @@ public class Program
 		app.UseSwaggerUI();
 		if (app.Environment.IsDevelopment())
 		{
-			app.UseDeveloperExceptionPage();
+			//app.UseDeveloperExceptionPage();
 			// Use the following to see live error handling when debugging
-			//app.UseExceptionHandler("/error");
+			app.UseExceptionHandler("/error");
 		}
 		else
 		{

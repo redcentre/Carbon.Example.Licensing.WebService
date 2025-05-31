@@ -76,7 +76,8 @@ public class TestBase
 
 	protected void Trace(string message)
 	{
-		TestContext.WriteLine(message);
+		//TestContext.WriteLine(message);
+		System.Diagnostics.Trace.WriteLine(message);
 	}
 
 	protected static string Join(IEnumerable<object> list) => list == null ? "NULL" : "[" + string.Join(",", list) + "]";

@@ -2,28 +2,27 @@ using System;
 using System.Diagnostics;
 using System.Text.Json;
 using System.Threading;
-using RCS.Licensing.Example.WebService.Shared;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using RCS.Azure.StorageAccount;
+using RCS.Licensing.Example.WebService.Shared;
 using RCS.Licensing.Provider.Shared;
-using RCS.LicensingV2.WebApi;
-using System.Threading.Tasks;
 
 namespace RCS.Licensing.Example.WebService.Controllers;
 
 public class LicensingControllerBase : ControllerBase
 {
-	readonly ILogger logger;
-
 	public LicensingControllerBase(ILoggerFactory loggerFactory, IConfiguration configuration, ILicensingProvider licprov)
 	{
-		logger = loggerFactory.CreateLogger("CON");
+		Logger = loggerFactory.CreateLogger("CON");
 		Config = configuration;
 		Licprov = licprov;
 	}
 
+	protected ILogger Logger { get; private set; }
+	
 	protected IConfiguration Config { get; private set; }
 
 	protected ILicensingProvider Licprov { get; private set; }
@@ -31,12 +30,6 @@ public class LicensingControllerBase : ControllerBase
 	protected Guid? SessionId => HttpContext.Items.TryGetValue(ExampleLicensingServiceClient.SessionIdHeaderName, out object? value) ? (Guid?)value : null;
 
 	protected string? ApiKey => HttpContext.Items.TryGetValue(ExampleLicensingServiceClient.ApiKeyHeaderName, out object? value) ? value?.ToString() : null;
-
-	protected int? RequestCount => HttpContext.Items.TryGetValue(StandardActionFilterAttribute.RequestCountKey, out var count) ? (int?)count : null;
-
-	protected void Info(string message) => logger.LogInformation(message);
-
-	protected void Warning(string message) => logger.LogWarning(message);
 
 	readonly JsonSerializerOptions Jopts1 = new() { WriteIndented = true };
 

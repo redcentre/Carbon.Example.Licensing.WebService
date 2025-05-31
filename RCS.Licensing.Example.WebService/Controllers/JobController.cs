@@ -1,11 +1,11 @@
 using System.Net.Mime;
 using System.Threading.Tasks;
-using RCS.Licensing.Example.WebService.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using RCS.Licensing.Example.WebService.Shared;
 using RCS.Licensing.Provider.Shared;
 using RCS.Licensing.Provider.Shared.Entities;
 
@@ -14,6 +14,7 @@ namespace RCS.Licensing.Example.WebService.Controllers;
 [ApiController]
 [Route("job")]
 [Tags("Job")]
+[TypeFilter(typeof(StandardActionFilterAttribute))]
 [Produces(MediaTypeNames.Application.Json, MediaTypeNames.Text.Plain)]
 [Consumes(MediaTypeNames.Application.Json, MediaTypeNames.Text.Plain)]
 public partial class JobController : LicensingControllerBase
@@ -26,7 +27,6 @@ public partial class JobController : LicensingControllerBase
 	async Task<ResponseWrap<Job?>> InnerReadJob(string id)
 	{
 		var job = await Licprov.ReadJob(id);
-		Info($"Read job {id} -> {job?.Name}");
 		if (job == null)
 		{
 			return new ResponseWrap<Job?>(1, "Not found");
@@ -55,7 +55,6 @@ public partial class JobController : LicensingControllerBase
 	async Task<ResponseWrap<int>> InnerDeleteJob(string id)
 	{
 		int count = await Licprov.DeleteJob(id);
-		Info($"Delete job {id} -> {count}");
 		return new ResponseWrap<int>(count);
 	}
 
@@ -63,7 +62,6 @@ public partial class JobController : LicensingControllerBase
 	{
 		var job = await Licprov.DisconnectJobChildUser(jobid, userId);
 		if (job == null) return new ResponseWrap<Job?>(1, "Not found");
-		Info($"DisconnectJobChildUser {jobid} from {userId} -> {job}");
 		return new ResponseWrap<Job?>(job);
 	}
 
@@ -72,7 +70,6 @@ public partial class JobController : LicensingControllerBase
 		var job = await Licprov.ConnectJobChildUsers(request.ParentId, request.ChildIds);
 		if (job == null) return new ResponseWrap<Job?>(1, "Not found");
 		string ujoin = string.Join(",", request.ChildIds);
-		Info($"ConnectJobUsers {request.ParentId} to [{ujoin}]) -> {job}");
 		return new ResponseWrap<Job?>(job);
 	}
 
@@ -81,7 +78,6 @@ public partial class JobController : LicensingControllerBase
 		var job = await Licprov.ReplaceJobChildUsers(request.ParentId, request.ChildIds);
 		if (job == null) return new ResponseWrap<Job?>(1, "Not found");
 		string rjoin = string.Join(",", request.ChildIds);
-		Info($"ReplaceJobUserJoins {request.ParentId} to [{rjoin}]) -> {job}");
 		return new ResponseWrap<Job?>(job);
 	}
 

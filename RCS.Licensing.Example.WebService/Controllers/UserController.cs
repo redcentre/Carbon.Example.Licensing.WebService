@@ -3,23 +3,24 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Mime;
 using System.Threading.Tasks;
-using RCS.Licensing.Example.WebService.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using RCS.Licensing.Example.Provider;
+using RCS.Licensing.Example.WebService.Shared;
 using RCS.Licensing.Provider.Shared;
 using RCS.Licensing.Provider.Shared.Entities;
 using SendGrid;
 using SendGrid.Helpers.Mail;
-using RCS.Licensing.Example.Provider;
 
 namespace RCS.Licensing.Example.WebService.Controllers;
 
 [ApiController]
 [Tags("User")]
 [Route("user")]
+[TypeFilter(typeof(StandardActionFilterAttribute))]
 [Produces(MediaTypeNames.Application.Json, MediaTypeNames.Text.Plain)]
 [Consumes(MediaTypeNames.Application.Json, MediaTypeNames.Text.Plain)]
 public partial class UserController : LicensingControllerBase
@@ -34,7 +35,6 @@ public partial class UserController : LicensingControllerBase
 		try
 		{
 			int count = await Licprov.ChangePassword(request.UserId, request.OldPassword, request.NewPassword);
-			Info($"Change password {request.UserId},{request.OldPassword},{request.NewPassword}) -> {count}");
 			return new ResponseWrap<int>(count);
 		}
 		catch (ExampleLicensingException ex)
@@ -97,7 +97,6 @@ public partial class UserController : LicensingControllerBase
 			return new ResponseWrap<string?>(14, $"User Id {userId} email send status {response?.StatusCode}");
 		}
 		string? msgid = response.Headers.FirstOrDefault(h => h.Key == "X-Message-Id").Value.FirstOrDefault();
-		Info($"Password change email Id {userId} MsgId {msgid}");
 		return await Task.FromResult(new ResponseWrap<string?>(pleaId));
 	}
 
@@ -121,7 +120,6 @@ public partial class UserController : LicensingControllerBase
 		try
 		{
 			int count = await Licprov.UpdateAccount(request.UserId, request.UserName, request.Comment, request.Email);
-			Info($"Update account {request.UserId},{request.UserName},{request.Comment},{request.Email}) -> {count}");
 			return new ResponseWrap<int>(count);
 		}
 		catch (ExampleLicensingException ex)
@@ -134,7 +132,6 @@ public partial class UserController : LicensingControllerBase
 	{
 		var picks = await Licprov.ListUserPicksForRealms(request.Ids);
 		string rjoin = request.Ids == null ? "NULL" : string.Join(",", request.Ids);
-		Info($"{RequestCount} ListUserPicksForRealms([{rjoin}]) -> {picks.Length}");
 		return new ResponseWrap<UserPick[]>(picks);
 	}
 
@@ -143,14 +140,12 @@ public partial class UserController : LicensingControllerBase
 		request.Id = null;
 		var result = (await Licprov.UpsertUser(request))!;
 		var user = result.Entity;
-		Info($"Create user ({result.Status},{user?.Id},{user?.Name},{user?.Email},{user?.Comment})");
 		return new ResponseWrap<UpsertResult<User>>(result);
 	}
 
 	async Task<ResponseWrap<User?>> InnerReadUser(string id)
 	{
 		var user = await Licprov.ReadUser(id);
-		Info($"Read user {id} -> {user?.Name}");
 		if (user == null)
 		{
 			return new ResponseWrap<User?>(1, $"User Id {id} found");
@@ -161,7 +156,6 @@ public partial class UserController : LicensingControllerBase
 	async Task<ResponseWrap<User[]>> InnerListUsers()
 	{
 		var list = await Licprov.ListUsers();
-		Info($"List users -> {list.Length}");
 		return new ResponseWrap<User[]>(list);
 	}
 
@@ -169,7 +163,6 @@ public partial class UserController : LicensingControllerBase
 	{
 		var list = await Licprov.ListUsers(request.Ids);
 		string ids = request.Ids == null ? "NULL" : "[" + string.Join(",", request.Ids) + "]";
-		Info($"List users({ids}) -> {list.Length}");
 		return new ResponseWrap<User[]>(list);
 	}
 
@@ -180,24 +173,20 @@ public partial class UserController : LicensingControllerBase
 		if (upuser == null)
 		{
 			string msg = $"User Id {user.Id} not found";
-			Warning(msg);
 			return new ResponseWrap<UpsertResult<User>>(1,msg);
 		}
-		Info($"Update user ({upuser.Id},{upuser.Name})");
 		return new ResponseWrap<UpsertResult<User>>(result);
 	}
 
 	async Task<ResponseWrap<int>> InnerDeleteUser(string id)
 	{
 		int count = await Licprov.DeleteUser(id);
-		Info($"Delete user {id} -> {count}");
 		return new ResponseWrap<int>(count);
 	}
 
 	async Task<ResponseWrap<User?>> InnerDisconnectUserChildCustomer(string userId, string customerId)
 	{
 		var user = await Licprov.DisconnectUserChildCustomer(userId, customerId);
-		Info($"DisconnectCustomerUsers {userId} from {customerId} -> {user}");
 		return new ResponseWrap<User?>(user!);
 	}
 
@@ -206,7 +195,6 @@ public partial class UserController : LicensingControllerBase
 		var user = await Licprov.ConnectUserChildCustomers(request.ParentId, request.ChildIds);
 		if (user == null) return new ResponseWrap<User?>(1, "Not found");
 		string rjoin = string.Join(",", request.ChildIds);
-		Info($"ConnectUserChildCustomers {request.ParentId} to [{rjoin}]) -> {user}");
 		return new ResponseWrap<User?>(user);
 	}
 
@@ -215,14 +203,12 @@ public partial class UserController : LicensingControllerBase
 		var user = await Licprov.ReplaceUserChildCustomers(request.ParentId, request.ChildIds);
 		if (user == null) return new ResponseWrap<User?>(1, "Not found");
 		string rjoin = string.Join(",", request.ChildIds);
-		Info($"ReplaceUserChildCustomers {request.ParentId} to [{rjoin}]) -> {user}");
 		return new ResponseWrap<User?>(user);
 	}
 
 	async Task<ResponseWrap<User?>> InnerDisconnectUserChildJob(string userId, string jobId)
 	{
 		var user = await Licprov.DisconnectUserChildJob(userId, jobId);
-		Info($"DisconnectJobUsers {userId} from {jobId} -> {user}");
 		return new ResponseWrap<User?>(user!);
 	}
 
@@ -231,7 +217,6 @@ public partial class UserController : LicensingControllerBase
 		var user = await Licprov.ConnectUserChildJobs(request.ParentId, request.ChildIds);
 		if (user == null) return new ResponseWrap<User?>(1, "Not found");
 		string rjoin = string.Join(",", request.ChildIds);
-		Info($"ConnectUserChildJobs {request.ParentId} to [{rjoin}]) -> {user}");
 		return new ResponseWrap<User?>(user);
 	}
 
@@ -240,14 +225,12 @@ public partial class UserController : LicensingControllerBase
 		var user = await Licprov.ReplaceUserChildJobs(request.ParentId, request.ChildIds);
 		if (user == null) return new ResponseWrap<User?>(1, "Not found");
 		string rjoin = string.Join(",", request.ChildIds);
-		Info($"ReplaceUserChildJobs {request.ParentId} to [{rjoin}]) -> {user}");
 		return new ResponseWrap<User?>(user);
 	}
 
 	async Task<ResponseWrap<User?>> InnerDisconnectUserChildRealm(string userId, string realmId)
 	{
 		var user = await Licprov.DisconnectUserChildRealm(userId, realmId);
-		Info($"DisconnectRealmUsers {userId} from {realmId} -> {user}");
 		return new ResponseWrap<User?>(user!);
 	}
 
@@ -256,7 +239,6 @@ public partial class UserController : LicensingControllerBase
 		var user = await Licprov.ConnectUserChildRealms(request.ParentId, request.ChildIds);
 		if (user == null) return new ResponseWrap<User?>(1, "Not found");
 		string rjoin = string.Join(",", request.ChildIds);
-		Info($"ConnectUserChildRealms {request.ParentId} to [{rjoin}]) -> {user}");
 		return new ResponseWrap<User?>(user);
 	}
 
@@ -267,7 +249,6 @@ public partial class UserController : LicensingControllerBase
 		DumpObj(request, "ReplaceUserChildRealms return");
 		if (user == null) return new ResponseWrap<User?>(1, "Not found");
 		string rjoin = string.Join(",", request.ChildIds);
-		Info($"ReplaceUserChildRealms {request.ParentId} to [{rjoin}]) -> {user}");
 		return new ResponseWrap<User?>(user);
 	}
 }
