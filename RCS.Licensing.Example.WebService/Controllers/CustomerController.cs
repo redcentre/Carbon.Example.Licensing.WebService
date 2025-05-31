@@ -148,18 +148,30 @@ public partial class CustomerController : LicensingControllerBase
 
 	async Task<ResponseWrap<SubscriptionAccount[]>> InnerListStorageAccounts()
 	{
+		if (SubscriptionUtil == null)
+		{
+			return new ResponseWrap<SubscriptionAccount[]>(2, "Subscription Ids are not configured");
+		}
 		var accounts = await SubscriptionUtil.ListAccounts().ToArrayAsync();
 		return new ResponseWrap<SubscriptionAccount[]>(accounts);
 	}
 
 	async Task<ResponseWrap<bool?>> InnerIsStorageAccountNameAvailable(string name)
 	{
+		if (SubscriptionUtil == null)
+		{
+			return new ResponseWrap<bool?>(2, "Subscription Ids are not configured");
+		}
 		bool? result = await SubscriptionUtil.IsStorageAccountNameAvailable(name);
 		return new ResponseWrap<bool?>(result);
 	}
 
 	async Task<ResponseWrap<SubscriptionAccount?>> InnerCreateStorageAccount([FromBody] CreateStorageAccountRequest request)
 	{
+		if (SubscriptionUtil == null)
+		{
+			return new ResponseWrap<SubscriptionAccount?>(2, "Subscription Ids are not configured");
+		}
 		SubscriptionAccount? result = await SubscriptionUtil.CreateStorageAccount(request.Name, request.ResourceGroupName, request.Location, request.AllowPublicBlobAccess);
 		return new ResponseWrap<SubscriptionAccount?>(result);
 	}

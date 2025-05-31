@@ -7,7 +7,7 @@
     <web controller="AuthenticationController" route="name" method="Post" anonymous="true">
       <summary>Authenticate licensing system account Name and password credentials.</summary>
       <parameters>
-        <parameter from="FromBody" name="request" type="LoginNameRequest"/>
+        <parameter from="FromBody" name="request" type="AuthenticateNameRequest" description="A serialized (c)LAuthenticateNameRequest(/c) in the request body."/>
       </parameters>
     </web>
     <client paramsToWebRequest="true" interceptName="InspectLicence">
@@ -30,7 +30,7 @@
     <web controller="AuthenticationController" route="id" method="Post" anonymous="true">
       <summary>Authenticate licensing system account Id and password credential authentication.</summary>
       <parameters>
-        <parameter name="request" type="LoginIdRequest" description="A serialized (c)LoginIdRequest(/c) in the request body."/>
+        <parameter name="request" type="AuthenticateIdRequest" description="A serialized (c)LAuthenticateIdRequest(/c) in the request body."/>
       </parameters>
     </web>
     <client paramsToWebRequest="true" interceptName="InspectLicence">
@@ -510,6 +510,9 @@
     </web>
     <client>
     </client>
+    <codes>
+      <code id="2">No susbcription config values</code>
+    </codes>
   </method>
 
   <method name="IsStorageAccountNameAvailable" responseType="bool?">
@@ -524,6 +527,9 @@
         <parameter name="name" type="string"/>
       </parameters>
     </client>
+    <codes>
+      <code id="2">No susbcription config values</code>
+    </codes>
   </method>
 
   <method name="CreateStorageAccount" responseType="SubscriptionAccount?">
@@ -541,6 +547,9 @@
         <parameter name="allowBlobPublicAccess" type="bool" description="True to allow public access to blobs in containers in the account."/>
       </parameters>
     </client>
+    <codes>
+      <code id="2">No susbcription config values</code>
+    </codes>
   </method>
 
   <!-- JOB -->

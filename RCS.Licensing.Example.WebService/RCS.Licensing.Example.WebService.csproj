@@ -2,32 +2,16 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <Description>An example REST style web service over the example licensing provider from Red Centre Software.</Description>
+    <Description>An example REST style web service that hosts the example licensing provider. See https://github.com/redcentre/Carbon.Example.Licensing.Provider</Description>
     <AspNetCoreHostingModel>OutOfProcess</AspNetCoreHostingModel>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <Configurations>Debug;Release;BPTest;BPLive</Configurations>
+    <Configurations>Debug;Release</Configurations>
     <IsPackable>false</IsPackable>
     <UserSecretsId>e630debe-54df-4ae4-bdaf-9d46eb4caab0</UserSecretsId>
   </PropertyGroup>
 
   <PropertyGroup>
     <NoWarn>1591</NoWarn>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
-    <DefineConstants>$(DefineConstants)</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Release'">
-    <DefineConstants>$(DefineConstants)</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='BPTest'">
-    <DefineConstants>$(DefineConstants);BPTEST</DefineConstants>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='BPLive'">
-    <DefineConstants>$(DefineConstants);BPLIVE</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>

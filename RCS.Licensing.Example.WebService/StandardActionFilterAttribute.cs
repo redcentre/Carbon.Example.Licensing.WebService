@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace RCS.Licensing.Example.WebService;
 
+[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
 internal class StandardActionFilterAttribute : ActionFilterAttribute
 {
 	public const string StartTimeKey = "StartTime";
@@ -19,10 +20,10 @@ internal class StandardActionFilterAttribute : ActionFilterAttribute
 
 	public override void OnActionExecuting(ActionExecutingContext context)
 	{
-		context.HttpContext.Items.Add(StartTimeKey, DateTime.Now);
+		context.HttpContext.Items[StartTimeKey] = DateTime.Now;
 		var logger = context.HttpContext.RequestServices.GetService(typeof(ILogger));
 		var req = context.HttpContext.Request;
-		//_logger!.LogInformation("{Count} Executing {Method} {Path}", reqCount, req.Method, req.Path);
+		//_logger!.LogInformation("{Method} {Path}", req.Method, req.Path);  // #### DEBUGGING
 	}
 
 	public override void OnResultExecuted(ResultExecutedContext context)
@@ -39,6 +40,7 @@ internal class StandardActionFilterAttribute : ActionFilterAttribute
 		var req = context.HttpContext.Request;
 		var resp = context.HttpContext.Response;
 		_logger!.LogInformation("{StatusCode} {Method} {Path} [{Secs:F1}]", resp.StatusCode, req.Method, req.Path, secs);
+		base.OnResultExecuted(context);
 	}
 
 }

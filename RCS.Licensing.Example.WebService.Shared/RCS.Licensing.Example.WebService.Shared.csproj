@@ -10,7 +10,7 @@
     <PackageTags>redcentre</PackageTags>
     <PackageReadmeFile>readme.md</PackageReadmeFile>
     <PackageOutputPath>\\CONDOR\shared\Nuget\redcentre</PackageOutputPath>
-    <Configurations>Debug;Release;BPTest;BPLive</Configurations>
+    <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>

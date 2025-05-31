@@ -11,7 +11,6 @@ using RCS.Licensing.Provider.Shared;
 namespace RCS.Licensing.Example.WebService.Controllers;
 
 [ApiController]
-[TypeFilter(typeof(StandardActionFilterAttribute))]
 [Route("authentication")]
 [Tags("Authentication")]
 [TypeFilter(typeof(StandardActionFilterAttribute))]
@@ -72,15 +71,9 @@ public partial class AuthenticationController : LicensingControllerBase
 	/// </summary>
 	void EnrichLicence(LicenceFull licence)
 	{
-
-		// ┌───────────────────────────────────────────────────────────────┐
-		// │  A product key is provided by Red Centre Software to all      │
-		// │  applications that call the Carbon engine. Carbon validates   │
-		// │  the key to be sure that it is being called by a legitimate   │
-		// │  service that is known to the company providing Carbon        │
-		// │  licences.                                                    │
-		// └───────────────────────────────────────────────────────────────┘
-		licence.ProductKey = Config["LicensingService:ProductKey"]!;
+		// The example licensing service does not contact Carbon.
+		// A product key is meaningless.
+		licence.ProductKey = null;
 		// ┌───────────────────────────────────────────────────────────────┐
 		// │  The signature returned in the authentication response is     │
 		// │  experimental. It contains proof of the Id and time that a    │

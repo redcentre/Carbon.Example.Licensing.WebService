@@ -56,7 +56,7 @@ public class AuthCheckerAttribute : Attribute, IAuthorizationFilter
 		}
 		if (key == null)
 		{
-			_logger!.LogWarning("NullKey {Method} {Path}", req.Method, req.Path);
+			_logger!.LogWarning("{Method} {Path} missing authorisation key", req.Method, req.Path);
 			var wrap = new ResponseWrap<MockResponse>(403, $"Request header key '{ExampleLicensingServiceClient.ApiKeyHeaderName}' is required.");
 			context.Result = new ObjectResult(wrap) { StatusCode = StatusCodes.Status200OK };
 			return;
@@ -74,7 +74,7 @@ public class AuthCheckerAttribute : Attribute, IAuthorizationFilter
 		}
 		if (!validApiKeys.Contains(key))
 		{
-			_logger!.LogWarning("UnregisteredKey {Method} {Path}", req.Method, req.Path);
+			_logger!.LogWarning("{Method} {Path} unregistered authorisation key", req.Method, req.Path);
 			// Any valid API Key is placed in the context item collection
 			// so it can be easily referenced further down request processing.
 			var wrap = new ResponseWrap<MockResponse>(403, $"Request header key '{ExampleLicensingServiceClient.ApiKeyHeaderName}' value is not registered.");
@@ -82,6 +82,6 @@ public class AuthCheckerAttribute : Attribute, IAuthorizationFilter
 			return;
 		}
 		context.HttpContext.Items.Add(ExampleLicensingServiceClient.ApiKeyHeaderName, key);
-		_logger!.LogInformation("Key Auth {Method} {Path}", req.Method, req.Path);
+		//_logger!.LogInformation("Key Auth {Method} {Path}", req.Method, req.Path);	#### DEBUGGING
 	}
 }

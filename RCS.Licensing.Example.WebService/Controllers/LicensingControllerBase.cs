@@ -22,7 +22,7 @@ public class LicensingControllerBase : ControllerBase
 	}
 
 	protected ILogger Logger { get; private set; }
-	
+
 	protected IConfiguration Config { get; private set; }
 
 	protected ILicensingProvider Licprov { get; private set; }
@@ -46,12 +46,31 @@ public class LicensingControllerBase : ControllerBase
 	}
 
 	SubscriptionUtility? _subutil;
-	protected SubscriptionUtility SubscriptionUtil => LazyInitializer.EnsureInitialized(ref _subutil, () => new SubscriptionUtility(
-		Config["LicensingService:SubscriptionId"]!,
-		Config["LicensingService:TenantId"]!,
-		Config["LicensingService:ApplicationId"]!,
-		Config["LicensingService:ClientSecret"]!
-	));
+	bool subutilFailed;
+	protected SubscriptionUtility? SubscriptionUtil
+	{
+		get
+		{
+			if (subutilFailed || _subutil != null)
+			{
+				return _subutil;
+			}
+			string? subId = Config["LicensingService:SubscriptionId"];
+			string? tenId = Config["LicensingService:TenantId"];
+			string? appId = Config["LicensingService:ApplicationId"];
+			string? secret = Config["LicensingService:ClientSecret"];
+			if (string.IsNullOrEmpty(subId) || string.IsNullOrEmpty(tenId) || string.IsNullOrEmpty(appId) || string.IsNullOrEmpty(secret))
+			{
+				subutilFailed = true;
+				return null;
+			}
+			if (_subutil == null)
+			{
+				LazyInitializer.EnsureInitialized(ref _subutil, () => new SubscriptionUtility(subId, tenId, appId, secret));
+			}
+			return _subutil;
+		}
+	}
 
 	PleaProcessor? _pleaproc;
 	bool pleaFailed;
