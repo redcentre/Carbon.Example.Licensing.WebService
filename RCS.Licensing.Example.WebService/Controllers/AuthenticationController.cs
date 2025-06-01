@@ -67,17 +67,10 @@ public partial class AuthenticationController : LicensingControllerBase
 
 	/// <summary>
 	/// Add extra environment and licensing information to the response that is only meaningful to this
-	/// web service and not the underlying database.
+	/// web service and not the underlying provider or database.
 	/// </summary>
 	void EnrichLicence(LicenceFull licence)
 	{
-
-		// ┌───────────────────────────────────────────────────────────────┐
-		// │  The following product key is will be used by clients who     │
-		// │  will use the Carbon engine. This service can't know what     │
-		// │  clients will do, so it passes one back just in case.         │
-		// └───────────────────────────────────────────────────────────────┘
-		licence.ProductKey = Config["LicensingService:ProductKey"];
 		// ┌───────────────────────────────────────────────────────────────┐
 		// │  The signature returned in the authentication response is     │
 		// │  experimental. It contains proof of the Id and time that a    │

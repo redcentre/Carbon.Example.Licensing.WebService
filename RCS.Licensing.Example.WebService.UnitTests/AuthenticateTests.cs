@@ -12,7 +12,7 @@ public class AuthenticateTests : TestBase
 	public async Task L100_Login_Bad_Uri()
 	{
 		using var client = new ExampleLicensingServiceClient(new Uri(SeviceUri + "foo/"));
-		var ex = await Assert.ThrowsExceptionAsync<ApplicationException>(() => client.AuthenticateId(UserId, Password));
+		var ex = await Assert.ThrowsExceptionAsync<ApplicationException>(() => client.AuthenticateId(UserId, UserPass));
 		Trace(ex.ToString());
 		Assert.IsTrue(ex.Message.StartsWith("Unexpected status code NotFound from POST"));
 	}

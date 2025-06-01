@@ -2,16 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-    <UserSecretsId>e630debe-54df-4ae4-bdaf-9d46eb4caab0</UserSecretsId>
     <Description>Unit tests for the example licensing web service.</Description>
     <IsTestProject>true</IsTestProject>
     <Nullable>enable</Nullable>
     <TestingPlatformShowTestsFailure>true</TestingPlatformShowTestsFailure>
     <Configurations>Debug;Release</Configurations>
+    <UserSecretsId>e630debe-54df-4ae4-bdaf-9d46eb4caab0</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\RCS.Licensing.Example.WebService.Shared\RCS.Licensing.Example.WebService.Shared.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.5" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.5" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
     <PackageReference Include="Microsoft.Testing.Extensions.CodeCoverage" Version="17.14.2" />
     <PackageReference Include="Microsoft.Testing.Extensions.TrxReport" Version="1.7.1" />

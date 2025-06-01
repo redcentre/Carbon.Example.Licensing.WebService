@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using RCS.Licensing.Example.WebService.Shared;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RCS.Licensing.Provider.Shared;
+using Microsoft.Extensions.Configuration;
 
 namespace RCS.Licensing.Example.WebService.UnitTests;
 
@@ -18,25 +19,37 @@ public class TestBase
 	// ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼
 	protected const string SeviceUri = "https://localhost:7255/";
 	//protected const string SeviceUri = "https://bayesprice.azurewebsites.net/licensing/";
-	protected const string UserId = "10655727";
-	protected const string UserName = "gfkeogh@gmail.com";
-	protected const string Password = "qwe_123";
-	protected const string ApiKey = "316227";
+	protected string UserId;
+	protected string UserName;
+	protected string UserPass;
+	protected string ApiKey;
+	protected string ProductKey;
+	protected IConfiguration Config;
 
 	readonly JsonSerializerOptions JOpts = new JsonSerializerOptions() { WriteIndented = true };
 	readonly JsonSerializerOptions JDumpOpts = new JsonSerializerOptions() { WriteIndented = true, Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
 
+	protected TestBase()
+	{
+		Config = new ConfigurationBuilder().AddJsonFile("appsettings.json").AddUserSecrets("e630debe-54df-4ae4-bdaf-9d46eb4caab0").Build();
+		UserId = Config["UnitTests:UserId"]!;
+		UserName = Config["UnitTests:UserName"]!;
+		UserName = Config["UnitTests:UserPass"]!;
+		ApiKey = Config["UnitTests:ApiKey"]!;
+		ProductKey = Config["UnitTests:ProductKey"]!;
+	}
+
 	protected async Task WrapClientLoginName(Func<ExampleLicensingServiceClient, Task> callback, string? uri = null, string? apiKey = null, string? userName = null, string? password = null)
 	{
 		using var client = new ExampleLicensingServiceClient(new Uri(uri ?? SeviceUri), apiKey ?? ApiKey, null, true);
-		var wrapin = await client.AuthenticateName(userName ?? UserName, password ?? Password);
+		var wrapin = await client.AuthenticateName(userName ?? UserName, password ?? UserPass);
 		await callback(client);
 	}
 
 	protected async Task WrapClientLoginId(Func<ExampleLicensingServiceClient, Task> callback, string? uri = null, string? apiKey = null, string? userId = null, string? password = null)
 	{
 		using var client = new ExampleLicensingServiceClient(new Uri(uri ?? SeviceUri), apiKey ?? ApiKey, null, true);
-		var wrap1 = await client.AuthenticateId(userId ?? UserId, password ?? Password);
+		var wrap1 = await client.AuthenticateId(userId ?? UserId, password ?? UserPass);
 		await callback(client);
 	}
 

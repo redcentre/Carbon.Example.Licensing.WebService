@@ -80,7 +80,9 @@ public class Program
 			});
 		});
 
-		var licprov = new ExampleLicensingProvider(builder.Configuration["LicensingService:AdoConnect"]!);
+		string adoConnect = builder.Configuration["LicensingService:AdoConnect"]!;
+		string? productKey = builder.Configuration["LicensingService:ProductKey"];
+		var licprov = new ExampleLicensingProvider(adoConnect, productKey);
 		builder.Services.AddSingleton(typeof(ILicensingProvider), licprov);
 
 		var app = builder.Build();
