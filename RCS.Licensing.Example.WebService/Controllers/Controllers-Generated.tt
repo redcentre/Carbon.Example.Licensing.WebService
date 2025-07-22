@@ -117,12 +117,6 @@ partial class <#=con.ConName#>
 	[AllowAnonymous]
 <#
 			}
-			if (am.Web.RequiresSession)
-			{
-#>
-	[TypeFilter(typeof(SessionCheckerAttribute))]
-<#
-			}
 			if (am.Web.RequiresKey)
 			{
 #>

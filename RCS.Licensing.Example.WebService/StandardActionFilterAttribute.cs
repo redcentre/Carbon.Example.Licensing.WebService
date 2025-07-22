@@ -4,6 +4,11 @@ using Microsoft.Extensions.Logging;
 
 namespace RCS.Licensing.Example.WebService;
 
+/// <summary>
+/// This action filter is currently just used for optional logging.
+/// The elapsed time is calculated for the request, but other information
+/// could be carried from the start of the request for its lifetime.
+/// </summary>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false, Inherited = true)]
 internal class StandardActionFilterAttribute : ActionFilterAttribute
 {
@@ -21,8 +26,8 @@ internal class StandardActionFilterAttribute : ActionFilterAttribute
 	public override void OnActionExecuting(ActionExecutingContext context)
 	{
 		context.HttpContext.Items[StartTimeKey] = DateTime.Now;
-		var logger = context.HttpContext.RequestServices.GetService(typeof(ILogger));
-		var req = context.HttpContext.Request;
+		//var logger = context.HttpContext.RequestServices.GetService(typeof(ILogger));
+		//var req = context.HttpContext.Request;
 		//_logger!.LogInformation("{Method} {Path}", req.Method, req.Path);  // #### DEBUGGING
 	}
 

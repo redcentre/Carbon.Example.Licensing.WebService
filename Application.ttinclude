@@ -28,8 +28,6 @@ public sealed class App
 				am.Web.Route = (string)welem.Attribute("route");
 				am.Web.Method = (string)welem.Attribute("method");
 				am.Web.Anonymous = (bool?)welem.Attribute("anonymous") ?? false;
-				am.Web.RequiresSession = (bool?)welem.Attribute("requiresSession") ?? false;
-				am.Web.RequiresKey = (bool?)welem.Attribute("requiresKey") ?? false;
 				var pselem = welem.Element("parameters");
 				if (pselem != null)
 				{
@@ -123,7 +121,6 @@ public sealed class AppWeb
 	public string Route { get; set; }
 	public string Method { get; set; }
 	public bool Anonymous { get; set; }
-	public bool RequiresSession { get; set; }
 	public bool RequiresKey { get; set; }
 	public TParam[] Params { get; set; }
 	public string ParamNameJoin
