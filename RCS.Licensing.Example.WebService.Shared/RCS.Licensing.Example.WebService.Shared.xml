@@ -595,9 +595,9 @@
             </summary>
             <remarks>
               Attempts to send a change password request via email so it can be verified by 
-              two-factor-authentication and then processed by an external service.
+              two-factor-authentication and then processed by an external application.
             </remarks>
-            <param name="userId">The User Id adding a plea to change password.</param>
+            <param name="email">The account email address making a plea to change password.</param>
         </member>
         <member name="M:RCS.Licensing.Example.WebService.Shared.ExampleLicensingServiceClient.GetPlea(System.String)">
             <summary>

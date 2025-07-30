@@ -80,7 +80,7 @@
   </method>
 
   <method name="ThrowError" responseType="MockResponse" nonProvider="true">
-    <web controller="ServiceController" route="throw" method="Get" anonymous="true">
+    <web controller="ServiceController" route="throw" method="Get" requiresKey="true">
       <summary>Causes a deliberate service internal error for testing.</summary>
       <parameters>
         <parameter from="FromRoute" name="number" type="int" description="Some number."/>
@@ -957,26 +957,28 @@
   </method>
 
   <method name="PasswordChangePlea" responseType="string?">
-    <web controller="UserController" route="plea/password/{userId}" method="Post" requiresKey="true">
+    <web controller="UserController" route="plea/password/{email}" method="Post" requiresKey="true">
       <summary>Sends a change password request through two-factor-authentication.</summary>
       <remarks>
-        Attempts to send a change password request via email so it can be verified by two-factor-authentication and then processed by an external service.
+        Attempts to send a change password request via email so it can be verified by two-factor-authentication and then processed by an external application.
       </remarks>
       <parameters>
-        <parameter from="FromRoute" name="userId" type="string"/>
+        <parameter from="FromRoute" name="email" type="string"/>
       </parameters>
     </web>
     <client>
       <parameters>
-        <parameter name="userId" type="string" description="The User Id adding a plea to change password."/>
+        <parameter name="email" type="string" description="The account email address making a plea to change password."/>
       </parameters>
     </client>
     <codes>
       <code id="1">User not found.</code>
-      <code id="11">User has no email address.</code>
+      <code id="11">The email address is incorrectly formatted.</code>
       <code id="12">Email configuration values undefined.</code>
       <code id="13">Storage configuration values undefined.</code>
       <code id="14">Email send failed.</code>
+      <code id="15">Multiple accounts have the email address.</code>
+      <code id="16">No email is specified.</code>
     </codes>
   </method>
 

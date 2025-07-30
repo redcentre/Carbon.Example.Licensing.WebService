@@ -43,20 +43,39 @@ public partial class UserController : LicensingControllerBase
 		}
 	}
 
-	async Task<ResponseWrap<string?>> InnerPasswordChangePlea(string userId)
+	async Task<ResponseWrap<string?>> InnerPasswordChangePlea(string email)
 	{
-		var user = await Licprov.ReadUser(userId);
+		if (string.IsNullOrEmpty(email))
+		{
+			return new ResponseWrap<string?>(16, $"Email parameter is null or blank");
+		}
+		if (!AppUtility.IsValidEmail(email))
+		{
+			return new ResponseWrap<string?>(11, $"Email '{email}' is incorrectly formatted.");
+		}
+		// ┌───────────────────────────────────────────────────────────────┐
+		// │  Special behaviour here - Some installations may have a       │
+		// │  policy of only having an email address in the user record's  │
+		// │  Name property. In that case we don't know were to find the   │
+		// │  email address, so the Email property is matched first, then  │
+		// │  a fallback to the Name if necessary. This helps find the     │
+		// │  email if it's defined somewhere.                             │
+		// └───────────────────────────────────────────────────────────────┘
+		var users = await Licprov.ReadUsersByEmail(email);
+		if (users.Length == 0)
+		{
+			users = await Licprov.ReadUsersByName(email);
+		}
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Verify the user and email value exist.
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		if (user == null)
+		if (users.Length == 0)
 		{
-			return new ResponseWrap<string?>(1, $"User Id {userId} found");
+			return new ResponseWrap<string?>(1, $"Email '{email}' not found");
 		}
-		string email = user.Email ?? user.Name;
-		if (!AppUtility.IsValidEmail(email))
+		if (users.Length > 1)
 		{
-			return new ResponseWrap<string?>(11, $"User Id {userId} does not define an email address in the Name or Email values.");
+			return new ResponseWrap<string?>(15, $"Email '{email}' is not unique");
 		}
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Verify required config values are defined.
@@ -77,7 +96,7 @@ public partial class UserController : LicensingControllerBase
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 		// Attempt to add a 2FA plea, fill the email body and send it.
 		//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-		string pleaId = await pproc.AddItem("PasswordChange", userId);
+		string pleaId = await pproc.AddItem("PasswordChange", users[0].Id);
 		var client = new SendGridClient(twilkey);
 		var msg = new SendGridMessage()
 		{
@@ -87,14 +106,14 @@ public partial class UserController : LicensingControllerBase
 		using (var http = new HttpClient())
 		{
 			string body = await http.GetStringAsync(templateUri);
-			msg.HtmlContent = body.Replace("$(USERNAME)", user.Name).Replace("$(REQUESTID)", pleaId);
+			msg.HtmlContent = body.Replace("$(USERNAME)", users[0].Name).Replace("$(REQUESTID)", pleaId);
 		}
 		msg.AddTo(email);
 		//msg.AddBcc(from);
 		var response = await client.SendEmailAsync(msg);
 		if (response?.StatusCode != HttpStatusCode.Accepted)
 		{
-			return new ResponseWrap<string?>(14, $"User Id {userId} email send status {response?.StatusCode}");
+			return new ResponseWrap<string?>(14, $"User Id {users[0].Id} email '{email}' send status {response?.StatusCode}");
 		}
 		string? msgid = response.Headers.FirstOrDefault(h => h.Key == "X-Message-Id").Value.FirstOrDefault();
 		return await Task.FromResult(new ResponseWrap<string?>(pleaId));
@@ -148,7 +167,7 @@ public partial class UserController : LicensingControllerBase
 		var user = await Licprov.ReadUser(id);
 		if (user == null)
 		{
-			return new ResponseWrap<User?>(1, $"User Id {id} found");
+			return new ResponseWrap<User?>(1, $"User Id {id} not found");
 		}
 		return new ResponseWrap<User?>(user);
 	}

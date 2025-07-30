@@ -2,7 +2,7 @@
 
 This repository contains an example REST style web service that hosts the functionality of the example licensing provider.
 
-For more information on how the Carbon suite depends upon a licensing provider for authentication, see the [Carbon.Examples.Licensing.Provider][exlicprov] repository notes.
+For more information on how the Carbon suite depends upon a licensing provider for authentication, see the [Carbon.Example.Licensing.Provider][exlicprov] repository notes.
 
 The web service can be customised by configuration variables at runtime (See below) or it can be cloned and used as the basis of a custom service to expose licensing functionality. The example licensing provider exposes an API defined by an interface named `ILicensingProvider`, and for a hosting web service to be useful it would be expected to publish most of the API. The example service does publish the complete API.
 
@@ -125,5 +125,5 @@ In a production environment like hosting in Azure, configuration values would be
 
 Last updated: 28-May-2025
 
-[exlicprov]: https://github.com/redcentre/Carbon.Examples.Licensing.Provider
+[exlicprov]: https://github.com/redcentre/Carbon.Example.Licensing.Provider
 [jwt]: https://en.wikipedia.org/wiki/JSON_Web_Token

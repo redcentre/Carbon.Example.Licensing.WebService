@@ -80,7 +80,7 @@ partial class <#=con.ConName#>
 	/// <response code="200">
 	///   The web service call succeeded. The response body contains a serialized <c>ResponseWrap</c>.
 	///   If the <c>hasError</c> property is <b>false</b> then the <c>data</c> property contains a serialized <c><#=showtype2#></c>.
-	///   <i>For more information see: <a href="https://github.com/redcentre/Carbon.Examples.Licensing.WebService" target="_blank">Carbon Example Licensing Web Service</a>.</i>
+	///   <i>For more information see: <a href="https://github.com/redcentre/Carbon.Example.Licensing.WebService" target="_blank">Carbon Example Licensing Web Service</a>.</i>
 <#
 			if (am.Codes.Length > 0)
 			{
